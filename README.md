@@ -18,16 +18,18 @@ resources:
   source:
     kind: prs # One of: prs, pr, release, repositories
     access_token: gh_pat...
+    config:
+      # See below for config options, depending on which kind is selected
 ```
 
 ## Picking the Resource `kind`
 
 The following `kind`'s are supported:
 
-* `prs` - Work with multiple Pull Requests at once.
-* `pr` - Work with a single Pull Request.
-* `release` - Track and publish GitHub releases.
-* `repositories` - Lists repositories for a GitHub organization or team. Does not clone the repositories.
+* [`prs`](#kind-prs) - Work with multiple Pull Requests at once.
+* [`pr`](#kind-pr) - Work with a single Pull Request.
+* [`release`](#kind-release) - Track and publish GitHub releases.
+* [`repositories`](#kind-repositories) - Lists repositories for a GitHub organization or team. Does not clone the repositories.
 
 ## Configuring Authentication
 
@@ -70,8 +72,28 @@ The following table outlines the required permissions for each `kind`.
 
 ## `kind: prs`
 
+Returns a list of Pull Requests against a given repository.
+
+Only the `get` step is supported. The `put` step is a no-op and will error if you try to use it.
+
 ## `kind: pr`
+
+Allows you to interact with a single Pull Request.
+
+The `get` step returns
+tracks commits from the Pull Request and locally merges them into the target
+branch.
+
+The `put` step can do one of the following:
+* Leave a comment on the Pull Request
+* Set the status on a commit of the Pull Request. One instance of the resource can be used to set multiple statuses.
 
 ## `kind: release`
 
+Tracks and publishes GitHub releases.
+
 ## `kind: repositories`
+
+Lists all repositories for a given GitHub organization or team. Does not clone
+the repositories. The `put` step is not implemented and will error if you try
+to use it.
