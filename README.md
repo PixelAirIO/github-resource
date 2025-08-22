@@ -1,2 +1,2 @@
 # github-resource
-A Concourse resource for with GitHub resources
+A Concourse resource for working with GitHub
