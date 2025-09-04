@@ -80,13 +80,11 @@ Only the `get` step is supported. The `put` step is a no-op and will error if yo
 
 Allows you to interact with a single Pull Request.
 
-The `get` step returns
-tracks commits from the Pull Request and locally merges them into the target
-branch.
+The `get` step tracks commits from the Pull Request and locally merges them into
+the target branch.
 
-The `put` step can do one of the following:
-* Leave a comment on the Pull Request
-* Set the status on a commit of the Pull Request. One instance of the resource can be used to set multiple statuses.
+The `put` step can set the status on a commit of the Pull Request. One instance
+of the resource can be used to set multiple statuses on the PR.
 
 ## `kind: release`
 
@@ -97,3 +95,8 @@ Tracks and publishes GitHub releases.
 Lists all repositories for a given GitHub organization or team. Does not clone
 the repositories. The `put` step is not implemented and will error if you try
 to use it.
+
+## `kind: branches`
+
+Lists all branches for a given GitHub repository. The `put` step is not
+implemented and will error if you try to use it.
