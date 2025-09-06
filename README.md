@@ -17,8 +17,8 @@ resources:
   type: github
   source:
     kind: prs # One of: prs, pr, release, repositories
-    access_token: gh_pat...
     config:
+      access_token: gh_pat...
       # See below for config options, depending on which kind is selected
 ```
 
@@ -37,7 +37,14 @@ Authentication is optional if you're accessing public repositories, but you'll
 likely want to configure it to avoid rate-limits. Create a [Personal Access
 token](https://github.com/settings/personal-access-tokens) (classic or
 fine-grained is fine). You provide the resource the access token via the
-`access_token` field, at the same level as the `kind` field.
+`config.access_token` field.
+
+## Custom Endpoint
+
+The endpoint can be configured by setting `config.api_endpoint` field. It will
+default to `https://api.github.com/graphql`. Only the GraphQL API is supported
+at this time because you're less likely to hit API rate limits compared to the
+REST API.
 
 The following table outlines the required permissions for each `kind`.
 
