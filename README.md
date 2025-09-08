@@ -1,6 +1,8 @@
 # GitHub Resource
 
-A [Concourse](https://concourse-ci.org/) resource for working with GitHub. This resource can be configured to track and update different resources within GitHub. It's like multiple Concourse resources bundled into one.
+A [Concourse](https://concourse-ci.org/) resource for working with GitHub. This
+resource can be configured to track and update different resources within
+GitHub. It's multiple Concourse resources bundled into one container image.
 
 Use it in your pipeline:
 
@@ -9,7 +11,7 @@ resource_types:
 - name: github
   type: registry-image
   source:
-    repository: ghcr.io/pixel-air/github-resource
+    repository: ghcr.io/pixelairio/github-resource
     tag: latest
 
 resources:
