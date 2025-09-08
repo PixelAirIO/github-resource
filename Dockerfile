@@ -19,5 +19,8 @@ RUN go build -o /assets/check ./cmd/check
 #TODO: run tests
 
 FROM ${base_image} AS resource
-LABEL "org.opencontainers.image.source"="https://github.com/PixelAirIO/github-resource"
+LABEL org.opencontainers.image.url="https://ghcr.io/pixelairio/github-resource"
+LABEL org.opencontainers.image.source="https://github.com/PixelAirIO/github-resource"
+LABEL org.opencontainers.image.authors="Pixel Air IO https://pixelair.io"
+LABEL org.opencontainers.image.vendor="Pixel Air IO"
 COPY --from=builder assets/ /opt/resource/
