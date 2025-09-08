@@ -11,6 +11,11 @@ import (
 	"github.com/pixel-air/github-resource/kinds/prs"
 )
 
+func init() {
+	log.SetFlags(0)
+	log.Println("Resource maintained by Pixel Air IO (https://github.com/PixelAirIO)")
+}
+
 func main() {
 	stdin, err := io.ReadAll(os.Stdin)
 	if err != nil {
