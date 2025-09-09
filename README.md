@@ -58,8 +58,8 @@ The following table outlines the required permissions for each `kind`.
     </tr>
     <tr>
         <td><code>prs</code></td>
-        <td></td>
-        <td></td>
+        <td><code>public_repo</code></td>
+        <td>Public repository access</td>
     </tr>
     <tr>
         <td><code>pr</code></td>
