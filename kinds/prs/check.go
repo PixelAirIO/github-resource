@@ -18,7 +18,7 @@ type checkRequest struct {
 	Version version `json:"version"`
 }
 
-func Check(stdin []byte) {
+func (*Prs) Check(stdin []byte) {
 	dc := json.NewDecoder(bytes.NewReader(stdin))
 	dc.DisallowUnknownFields()
 

@@ -6,3 +6,9 @@ type BaseRequest struct {
 		Config Config `json:"config"`
 	} `json:"source"`
 }
+
+type Kind interface {
+	Check(stdin []byte)
+	In(stdin []byte, dest string)
+	Out(stdin []byte, src string)
+}

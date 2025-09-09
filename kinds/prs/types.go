@@ -6,10 +6,15 @@ import (
 	gh "github.com/pixel-air/github-resource"
 )
 
+type Prs struct{}
+
+var _ gh.Kind = (*Prs)(nil)
+
 type Source struct {
 	Kind   string `json:"kind"`
 	Config Config `json:"config"`
 }
+
 type Config struct {
 	gh.Config
 	Owner  string                `json:"owner"`
