@@ -118,10 +118,10 @@ strings, not integers.
 
 ## `kind: pr`
 
-Allows you to interact with a single Pull Request.
+Allows you to interact with a single Pull Request. Will track commits pushed to the pull request.
 
-The `get` step tracks commits from the Pull Request and locally merges them into
-the target branch.
+The `get` step returns a commit from the Pull Request and locally merges them
+into the target branch.
 
 The `put` step can set the status on a commit of the Pull Request. One instance
 of the resource can be used to set multiple statuses on the PR.
