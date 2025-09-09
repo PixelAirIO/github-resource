@@ -81,9 +81,40 @@ The following table outlines the required permissions for each `kind`.
 
 ## `kind: prs`
 
-Returns a list of Pull Requests against a given repository.
+Returns a list of Pull Requests against a given repository. Can filter by the PR's status and labels.
 
-Only the `get` step is supported. The `put` step is a no-op and will error if you try to use it.
+`source.config` has the following additional fields:
+<table>
+    <tr>
+        <th>Field Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>owner</code><em>(Required)<em></td>
+        <td>The username or organization that owns the repository.</td>
+    </tr>
+    <tr>
+        <td><code>repository</code><em>(Required)<em></td>
+        <td>The repository to track PR's from.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>states</code><em>(Optional)<em>
+            <br>
+            Default Value: <code>["OPEN"]</code>
+        </td>
+        <td>A list of PR statuses to filter PR's by. Allowed values are: <code>OPEN</code>, <code>CLOSED</code>, <code>MERGED</code>.</td>
+    </tr>
+    <tr>
+        <td><code>labels</code><em>(Optional)<em></td>
+        <td>A list of label(s) to filter PR's by.</td>
+    </tr>
+</table>
+
+Only the `get` step is supported. The `put` step is a no-op and will error if
+you try to use it. The `get` step will write the list of PR's to a file,
+`prs.json`, as a JSON array of the PR numbers. The numbers will be saved as
+strings, not integers.
 
 ## `kind: pr`
 
