@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -39,34 +38,7 @@ func Check(stdin []byte) {
 		log.Fatalf("failed to create Github client: %v", err)
 	}
 
-	prs, err := ghc.ListPullRequests(
-		request.Source.Config.Owner,
-		request.Source.Config.Repo,
-		request.Source.Config.States,
-		request.Source.Config.Labels)
-
-	if err != nil {
-		log.Fatalf("failed to get pull requests: %v", err)
-	}
-
-	prsVersion := ""
-	for _, p := range prs {
-		prsVersion += strconv.Itoa(p.ID) + ","
-	}
-	prsVersion = strings.TrimSuffix(prsVersion, ",")
-
-	if prsVersion == request.Version.Prs {
-		log.Println("No new PRs found.")
-		fmt.Println("[]")
-		os.Exit(0)
-	}
-
-	newVersion := []version{
-		{
-			Prs:       prsVersion,
-			Timestamp: time.Now(),
-		},
-	}
+	newVersion := check(request, ghc)
 
 	out, err := json.Marshal(newVersion)
 	if err != nil {
@@ -96,4 +68,35 @@ func checkValidate(req *checkRequest) (err error) {
 	}
 
 	return err
+}
+
+func check(request checkRequest, ghc gh.GithubClient) []version {
+	prs, err := ghc.ListPullRequests(
+		request.Source.Config.Owner,
+		request.Source.Config.Repo,
+		request.Source.Config.States,
+		request.Source.Config.Labels)
+
+	if err != nil {
+		log.Fatalf("failed to get pull requests: %v", err)
+	}
+
+	prsVersion := ""
+	for _, p := range prs {
+		prsVersion += strconv.Itoa(p.ID) + ","
+	}
+	prsVersion = strings.TrimSuffix(prsVersion, ",")
+
+	if prsVersion == request.Version.Prs {
+		log.Println("No new PRs found.")
+		return []version{}
+	}
+
+	newVersion := []version{
+		{
+			Prs:       prsVersion,
+			Timestamp: time.Now(),
+		},
+	}
+	return newVersion
 }

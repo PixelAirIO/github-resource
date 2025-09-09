@@ -9,12 +9,15 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+//go:generate go tool counterfeiter -generate
+
 type Config struct {
 	AccessToken string `json:"access_token"`
 	APIEndpoint string `json:"api_endpoint"`
 }
 
-type Github interface {
+//counterfeiter:generate . GithubClient
+type GithubClient interface {
 	APIEndpoint() string
 	AccessToken() string
 	ListPullRequests(owner string, repo string, states []PullRequestState, labels []string) ([]PullRequest, error)
@@ -25,7 +28,7 @@ type githubClient struct {
 	config Config
 }
 
-var _ Github = (*githubClient)(nil)
+var _ GithubClient = (*githubClient)(nil)
 
 type authedTransport struct {
 	accessToken string
@@ -39,7 +42,7 @@ func (a *authedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 const DefaultEndpoint = "https://api.github.com/graphql"
 
-func NewGithubClient(cfg Config) (Github, error) {
+func NewGithubClient(cfg Config) (GithubClient, error) {
 	if cfg.APIEndpoint == "" {
 		cfg.APIEndpoint = DefaultEndpoint
 	}
