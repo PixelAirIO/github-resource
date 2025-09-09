@@ -3,18 +3,19 @@ package prs
 import (
 	"time"
 
-	. "github.com/pixel-air/github-resource"
+	gh "github.com/pixel-air/github-resource"
 )
 
 type Source struct {
 	Kind   string `json:"kind"`
-	Config struct {
-		Config
-		Owner  string             `json:"owner"`
-		Repo   string             `json:"repository"`
-		States []PullRequestState `json:"states"`
-		Labels []string           `json:"labels,omitempty"`
-	} `json:"config"`
+	Config Config `json:"config"`
+}
+type Config struct {
+	gh.Config
+	Owner  string                `json:"owner"`
+	Repo   string                `json:"repository"`
+	States []gh.PullRequestState `json:"states,omitempty"`
+	Labels []string              `json:"labels,omitempty"`
 }
 
 type version struct {

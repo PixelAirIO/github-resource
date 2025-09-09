@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/pixel-air/github-resource"
+	gh "github.com/pixel-air/github-resource"
 )
 
 type checkRequest struct {
@@ -34,12 +34,12 @@ func Check(stdin []byte) {
 		log.Fatalf("validation error: %v", err)
 	}
 
-	gh, err := NewGithubClient(request.Source.Config.Config)
+	ghc, err := gh.NewGithubClient(request.Source.Config.Config)
 	if err != nil {
 		log.Fatalf("failed to create Github client: %v", err)
 	}
 
-	prs, err := gh.ListPullRequests(
+	prs, err := ghc.ListPullRequests(
 		request.Source.Config.Owner,
 		request.Source.Config.Repo,
 		request.Source.Config.States,
@@ -78,17 +78,21 @@ func Check(stdin []byte) {
 
 func checkValidate(req *checkRequest) (err error) {
 	if req.Source.Config.Owner == "" {
-		errors.Join(errors.New("owner field is required"), err)
+		err = errors.Join(errors.New("owner field is required"), err)
 	}
 
 	if req.Source.Config.Repo == "" {
-		errors.Join(errors.New("repository field is required"), err)
+		err = errors.Join(errors.New("repository field is required"), err)
 	}
 
 	for _, v := range req.Source.Config.States {
-		if v != PullRequestStateOpen && v != PullRequestStateClosed && v != PullRequestStateMerged {
-			errors.Join(fmt.Errorf("unknown state in source.config.states '%s'. Must be one of OPEN, CLOSED, MERGED", v), err)
+		if v != gh.PullRequestStateOpen && v != gh.PullRequestStateClosed && v != gh.PullRequestStateMerged {
+			err = errors.Join(fmt.Errorf("unknown state in source.config.states '%s'. Must be one of OPEN, CLOSED, MERGED", v), err)
 		}
+	}
+
+	if len(req.Source.Config.States) == 0 {
+		req.Source.Config.States = []gh.PullRequestState{gh.PullRequestStateOpen}
 	}
 
 	return err
