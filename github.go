@@ -4,7 +4,6 @@ package githubresource
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/Khan/genqlient/graphql"
@@ -16,12 +15,17 @@ type Config struct {
 }
 
 type Github interface {
-	ListPullRequests()
+	APIEndpoint() string
+	AccessToken() string
+	ListPullRequests(owner string, repo string, states []PullRequestState, labels []string) ([]PullRequest, error)
 }
 
 type githubClient struct {
 	client graphql.Client
+	config Config
 }
+
+var _ Github = (*githubClient)(nil)
 
 type authedTransport struct {
 	accessToken string
@@ -33,12 +37,11 @@ func (a *authedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return a.transport.RoundTrip(req)
 }
 
-func NewGithubClient(cfg Config) (*githubClient, error) {
+const DefaultEndpoint = "https://api.github.com/graphql"
+
+func NewGithubClient(cfg Config) (Github, error) {
 	if cfg.APIEndpoint == "" {
-		cfg.APIEndpoint = "https://api.github.com/graphql"
-	}
-	if cfg.AccessToken == "" {
-		return nil, errors.New("access_token is required")
+		cfg.APIEndpoint = DefaultEndpoint
 	}
 
 	client := graphql.NewClient(cfg.APIEndpoint, &http.Client{
@@ -48,7 +51,7 @@ func NewGithubClient(cfg Config) (*githubClient, error) {
 		},
 	})
 
-	return &githubClient{client: client}, nil
+	return &githubClient{client: client, config: cfg}, nil
 }
 
 type PullRequest struct {
@@ -105,4 +108,12 @@ query getPullRequests(
 	}
 
 	return prs, nil
+}
+
+func (g *githubClient) APIEndpoint() string {
+	return g.config.APIEndpoint
+}
+
+func (g *githubClient) AccessToken() string {
+	return g.config.AccessToken
 }
