@@ -28,6 +28,23 @@ type FakeGithubClient struct {
 	accessTokenReturnsOnCall map[int]struct {
 		result1 string
 	}
+	GetRepositoriesStub        func(string, string, bool, bool, githubresource.RepositoryVisibility) ([]githubresource.Repository, error)
+	getRepositoriesMutex       sync.RWMutex
+	getRepositoriesArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 bool
+		arg4 bool
+		arg5 githubresource.RepositoryVisibility
+	}
+	getRepositoriesReturns struct {
+		result1 []githubresource.Repository
+		result2 error
+	}
+	getRepositoriesReturnsOnCall map[int]struct {
+		result1 []githubresource.Repository
+		result2 error
+	}
 	ListPullRequestsStub        func(string, string, []githubresource.PullRequestState, []string) ([]githubresource.PullRequest, error)
 	listPullRequestsMutex       sync.RWMutex
 	listPullRequestsArgsForCall []struct {
@@ -152,6 +169,74 @@ func (fake *FakeGithubClient) AccessTokenReturnsOnCall(i int, result1 string) {
 	fake.accessTokenReturnsOnCall[i] = struct {
 		result1 string
 	}{result1}
+}
+
+func (fake *FakeGithubClient) GetRepositories(arg1 string, arg2 string, arg3 bool, arg4 bool, arg5 githubresource.RepositoryVisibility) ([]githubresource.Repository, error) {
+	fake.getRepositoriesMutex.Lock()
+	ret, specificReturn := fake.getRepositoriesReturnsOnCall[len(fake.getRepositoriesArgsForCall)]
+	fake.getRepositoriesArgsForCall = append(fake.getRepositoriesArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 bool
+		arg4 bool
+		arg5 githubresource.RepositoryVisibility
+	}{arg1, arg2, arg3, arg4, arg5})
+	stub := fake.GetRepositoriesStub
+	fakeReturns := fake.getRepositoriesReturns
+	fake.recordInvocation("GetRepositories", []interface{}{arg1, arg2, arg3, arg4, arg5})
+	fake.getRepositoriesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4, arg5)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeGithubClient) GetRepositoriesCallCount() int {
+	fake.getRepositoriesMutex.RLock()
+	defer fake.getRepositoriesMutex.RUnlock()
+	return len(fake.getRepositoriesArgsForCall)
+}
+
+func (fake *FakeGithubClient) GetRepositoriesCalls(stub func(string, string, bool, bool, githubresource.RepositoryVisibility) ([]githubresource.Repository, error)) {
+	fake.getRepositoriesMutex.Lock()
+	defer fake.getRepositoriesMutex.Unlock()
+	fake.GetRepositoriesStub = stub
+}
+
+func (fake *FakeGithubClient) GetRepositoriesArgsForCall(i int) (string, string, bool, bool, githubresource.RepositoryVisibility) {
+	fake.getRepositoriesMutex.RLock()
+	defer fake.getRepositoriesMutex.RUnlock()
+	argsForCall := fake.getRepositoriesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
+}
+
+func (fake *FakeGithubClient) GetRepositoriesReturns(result1 []githubresource.Repository, result2 error) {
+	fake.getRepositoriesMutex.Lock()
+	defer fake.getRepositoriesMutex.Unlock()
+	fake.GetRepositoriesStub = nil
+	fake.getRepositoriesReturns = struct {
+		result1 []githubresource.Repository
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeGithubClient) GetRepositoriesReturnsOnCall(i int, result1 []githubresource.Repository, result2 error) {
+	fake.getRepositoriesMutex.Lock()
+	defer fake.getRepositoriesMutex.Unlock()
+	fake.GetRepositoriesStub = nil
+	if fake.getRepositoriesReturnsOnCall == nil {
+		fake.getRepositoriesReturnsOnCall = make(map[int]struct {
+			result1 []githubresource.Repository
+			result2 error
+		})
+	}
+	fake.getRepositoriesReturnsOnCall[i] = struct {
+		result1 []githubresource.Repository
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeGithubClient) ListPullRequests(arg1 string, arg2 string, arg3 []githubresource.PullRequestState, arg4 []string) ([]githubresource.PullRequest, error) {

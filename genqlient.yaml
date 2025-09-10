@@ -4,3 +4,7 @@ schema: schema.graphql
 operations:
   - "*.go"
 generated: generated.go
+
+bindings:
+  URI:
+    type: net/url.URL

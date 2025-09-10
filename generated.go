@@ -4,6 +4,7 @@ package githubresource
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -24,6 +25,24 @@ var AllPullRequestState = []PullRequestState{
 	PullRequestStateClosed,
 	PullRequestStateMerged,
 	PullRequestStateOpen,
+}
+
+// The repository's visibility level.
+type RepositoryVisibility string
+
+const (
+	// The repository is visible only to users in the same enterprise.
+	RepositoryVisibilityInternal RepositoryVisibility = "INTERNAL"
+	// The repository is visible only to those with explicit access.
+	RepositoryVisibilityPrivate RepositoryVisibility = "PRIVATE"
+	// The repository is visible to everyone.
+	RepositoryVisibilityPublic RepositoryVisibility = "PUBLIC"
+)
+
+var AllRepositoryVisibility = []RepositoryVisibility{
+	RepositoryVisibilityInternal,
+	RepositoryVisibilityPrivate,
+	RepositoryVisibilityPublic,
 }
 
 // __getPullRequestsInput is used internally by genqlient
@@ -49,6 +68,38 @@ func (v *__getPullRequestsInput) GetLabels() []string { return v.Labels }
 
 // GetEndCursor returns __getPullRequestsInput.EndCursor, and is useful for accessing the field via an interface.
 func (v *__getPullRequestsInput) GetEndCursor() string { return v.EndCursor }
+
+// __getRepositoriesInput is used internally by genqlient
+type __getRepositoriesInput struct {
+	Owner      string               `json:"owner"`
+	IsUser     bool                 `json:"isUser"`
+	IsOrg      bool                 `json:"isOrg"`
+	IsFork     bool                 `json:"isFork"`
+	IsArchived bool                 `json:"isArchived"`
+	Visibility RepositoryVisibility `json:"visibility"`
+	Cursor     string               `json:"cursor"`
+}
+
+// GetOwner returns __getRepositoriesInput.Owner, and is useful for accessing the field via an interface.
+func (v *__getRepositoriesInput) GetOwner() string { return v.Owner }
+
+// GetIsUser returns __getRepositoriesInput.IsUser, and is useful for accessing the field via an interface.
+func (v *__getRepositoriesInput) GetIsUser() bool { return v.IsUser }
+
+// GetIsOrg returns __getRepositoriesInput.IsOrg, and is useful for accessing the field via an interface.
+func (v *__getRepositoriesInput) GetIsOrg() bool { return v.IsOrg }
+
+// GetIsFork returns __getRepositoriesInput.IsFork, and is useful for accessing the field via an interface.
+func (v *__getRepositoriesInput) GetIsFork() bool { return v.IsFork }
+
+// GetIsArchived returns __getRepositoriesInput.IsArchived, and is useful for accessing the field via an interface.
+func (v *__getRepositoriesInput) GetIsArchived() bool { return v.IsArchived }
+
+// GetVisibility returns __getRepositoriesInput.Visibility, and is useful for accessing the field via an interface.
+func (v *__getRepositoriesInput) GetVisibility() RepositoryVisibility { return v.Visibility }
+
+// GetCursor returns __getRepositoriesInput.Cursor, and is useful for accessing the field via an interface.
+func (v *__getRepositoriesInput) GetCursor() string { return v.Cursor }
 
 // getPullRequestsRepository includes the requested fields of the GraphQL type Repository.
 // The GraphQL type's documentation follows.
@@ -129,6 +180,176 @@ type getPullRequestsResponse struct {
 // GetRepository returns getPullRequestsResponse.Repository, and is useful for accessing the field via an interface.
 func (v *getPullRequestsResponse) GetRepository() getPullRequestsRepository { return v.Repository }
 
+// getRepositoriesOrganization includes the requested fields of the GraphQL type Organization.
+// The GraphQL type's documentation follows.
+//
+// An account on GitHub, with one or more owners, that has repositories, members and teams.
+type getRepositoriesOrganization struct {
+	// A list of repositories that the user owns.
+	Repositories getRepositoriesOrganizationRepositoriesRepositoryConnection `json:"repositories"`
+}
+
+// GetRepositories returns getRepositoriesOrganization.Repositories, and is useful for accessing the field via an interface.
+func (v *getRepositoriesOrganization) GetRepositories() getRepositoriesOrganizationRepositoriesRepositoryConnection {
+	return v.Repositories
+}
+
+// getRepositoriesOrganizationRepositoriesRepositoryConnection includes the requested fields of the GraphQL type RepositoryConnection.
+// The GraphQL type's documentation follows.
+//
+// A list of repositories owned by the subject.
+type getRepositoriesOrganizationRepositoriesRepositoryConnection struct {
+	// Information to aid in pagination.
+	PageInfo getRepositoriesOrganizationRepositoriesRepositoryConnectionPageInfo `json:"pageInfo"`
+	// A list of nodes.
+	Nodes []getRepositoriesOrganizationRepositoriesRepositoryConnectionNodesRepository `json:"nodes"`
+}
+
+// GetPageInfo returns getRepositoriesOrganizationRepositoriesRepositoryConnection.PageInfo, and is useful for accessing the field via an interface.
+func (v *getRepositoriesOrganizationRepositoriesRepositoryConnection) GetPageInfo() getRepositoriesOrganizationRepositoriesRepositoryConnectionPageInfo {
+	return v.PageInfo
+}
+
+// GetNodes returns getRepositoriesOrganizationRepositoriesRepositoryConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *getRepositoriesOrganizationRepositoriesRepositoryConnection) GetNodes() []getRepositoriesOrganizationRepositoriesRepositoryConnectionNodesRepository {
+	return v.Nodes
+}
+
+// getRepositoriesOrganizationRepositoriesRepositoryConnectionNodesRepository includes the requested fields of the GraphQL type Repository.
+// The GraphQL type's documentation follows.
+//
+// A repository contains the content for a project.
+type getRepositoriesOrganizationRepositoriesRepositoryConnectionNodesRepository struct {
+	// The name of the repository.
+	Name string `json:"name"`
+	// The HTTP URL for this repository
+	Url url.URL `json:"url"`
+}
+
+// GetName returns getRepositoriesOrganizationRepositoriesRepositoryConnectionNodesRepository.Name, and is useful for accessing the field via an interface.
+func (v *getRepositoriesOrganizationRepositoriesRepositoryConnectionNodesRepository) GetName() string {
+	return v.Name
+}
+
+// GetUrl returns getRepositoriesOrganizationRepositoriesRepositoryConnectionNodesRepository.Url, and is useful for accessing the field via an interface.
+func (v *getRepositoriesOrganizationRepositoriesRepositoryConnectionNodesRepository) GetUrl() url.URL {
+	return v.Url
+}
+
+// getRepositoriesOrganizationRepositoriesRepositoryConnectionPageInfo includes the requested fields of the GraphQL type PageInfo.
+// The GraphQL type's documentation follows.
+//
+// Information about pagination in a connection.
+type getRepositoriesOrganizationRepositoriesRepositoryConnectionPageInfo struct {
+	// When paginating forwards, are there more items?
+	HasNextPage bool `json:"hasNextPage"`
+	// When paginating forwards, the cursor to continue.
+	EndCursor string `json:"endCursor"`
+}
+
+// GetHasNextPage returns getRepositoriesOrganizationRepositoriesRepositoryConnectionPageInfo.HasNextPage, and is useful for accessing the field via an interface.
+func (v *getRepositoriesOrganizationRepositoriesRepositoryConnectionPageInfo) GetHasNextPage() bool {
+	return v.HasNextPage
+}
+
+// GetEndCursor returns getRepositoriesOrganizationRepositoriesRepositoryConnectionPageInfo.EndCursor, and is useful for accessing the field via an interface.
+func (v *getRepositoriesOrganizationRepositoriesRepositoryConnectionPageInfo) GetEndCursor() string {
+	return v.EndCursor
+}
+
+// getRepositoriesResponse is returned by getRepositories on success.
+type getRepositoriesResponse struct {
+	// Lookup a organization by login.
+	Organization getRepositoriesOrganization `json:"organization"`
+	// Lookup a user by login.
+	User getRepositoriesUser `json:"user"`
+}
+
+// GetOrganization returns getRepositoriesResponse.Organization, and is useful for accessing the field via an interface.
+func (v *getRepositoriesResponse) GetOrganization() getRepositoriesOrganization {
+	return v.Organization
+}
+
+// GetUser returns getRepositoriesResponse.User, and is useful for accessing the field via an interface.
+func (v *getRepositoriesResponse) GetUser() getRepositoriesUser { return v.User }
+
+// getRepositoriesUser includes the requested fields of the GraphQL type User.
+// The GraphQL type's documentation follows.
+//
+// A user is an individual's account on GitHub that owns repositories and can make new content.
+type getRepositoriesUser struct {
+	// A list of repositories that the user owns.
+	Repositories getRepositoriesUserRepositoriesRepositoryConnection `json:"repositories"`
+}
+
+// GetRepositories returns getRepositoriesUser.Repositories, and is useful for accessing the field via an interface.
+func (v *getRepositoriesUser) GetRepositories() getRepositoriesUserRepositoriesRepositoryConnection {
+	return v.Repositories
+}
+
+// getRepositoriesUserRepositoriesRepositoryConnection includes the requested fields of the GraphQL type RepositoryConnection.
+// The GraphQL type's documentation follows.
+//
+// A list of repositories owned by the subject.
+type getRepositoriesUserRepositoriesRepositoryConnection struct {
+	// Information to aid in pagination.
+	PageInfo getRepositoriesUserRepositoriesRepositoryConnectionPageInfo `json:"pageInfo"`
+	// A list of nodes.
+	Nodes []getRepositoriesUserRepositoriesRepositoryConnectionNodesRepository `json:"nodes"`
+}
+
+// GetPageInfo returns getRepositoriesUserRepositoriesRepositoryConnection.PageInfo, and is useful for accessing the field via an interface.
+func (v *getRepositoriesUserRepositoriesRepositoryConnection) GetPageInfo() getRepositoriesUserRepositoriesRepositoryConnectionPageInfo {
+	return v.PageInfo
+}
+
+// GetNodes returns getRepositoriesUserRepositoriesRepositoryConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *getRepositoriesUserRepositoriesRepositoryConnection) GetNodes() []getRepositoriesUserRepositoriesRepositoryConnectionNodesRepository {
+	return v.Nodes
+}
+
+// getRepositoriesUserRepositoriesRepositoryConnectionNodesRepository includes the requested fields of the GraphQL type Repository.
+// The GraphQL type's documentation follows.
+//
+// A repository contains the content for a project.
+type getRepositoriesUserRepositoriesRepositoryConnectionNodesRepository struct {
+	// The name of the repository.
+	Name string `json:"name"`
+	// The HTTP URL for this repository
+	Url url.URL `json:"url"`
+}
+
+// GetName returns getRepositoriesUserRepositoriesRepositoryConnectionNodesRepository.Name, and is useful for accessing the field via an interface.
+func (v *getRepositoriesUserRepositoriesRepositoryConnectionNodesRepository) GetName() string {
+	return v.Name
+}
+
+// GetUrl returns getRepositoriesUserRepositoriesRepositoryConnectionNodesRepository.Url, and is useful for accessing the field via an interface.
+func (v *getRepositoriesUserRepositoriesRepositoryConnectionNodesRepository) GetUrl() url.URL {
+	return v.Url
+}
+
+// getRepositoriesUserRepositoriesRepositoryConnectionPageInfo includes the requested fields of the GraphQL type PageInfo.
+// The GraphQL type's documentation follows.
+//
+// Information about pagination in a connection.
+type getRepositoriesUserRepositoriesRepositoryConnectionPageInfo struct {
+	// When paginating forwards, are there more items?
+	HasNextPage bool `json:"hasNextPage"`
+	// When paginating forwards, the cursor to continue.
+	EndCursor string `json:"endCursor"`
+}
+
+// GetHasNextPage returns getRepositoriesUserRepositoriesRepositoryConnectionPageInfo.HasNextPage, and is useful for accessing the field via an interface.
+func (v *getRepositoriesUserRepositoriesRepositoryConnectionPageInfo) GetHasNextPage() bool {
+	return v.HasNextPage
+}
+
+// GetEndCursor returns getRepositoriesUserRepositoriesRepositoryConnectionPageInfo.EndCursor, and is useful for accessing the field via an interface.
+func (v *getRepositoriesUserRepositoriesRepositoryConnectionPageInfo) GetEndCursor() string {
+	return v.EndCursor
+}
+
 // The query executed by getPullRequests.
 const getPullRequests_Operation = `
 query getPullRequests ($owner: String!, $name: String!, $states: [PullRequestState!], $labels: [String!], $endCursor: String) {
@@ -168,6 +389,73 @@ func getPullRequests(
 	}
 
 	data_ = &getPullRequestsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by getRepositories.
+const getRepositories_Operation = `
+query getRepositories ($owner: String!, $isUser: Boolean!, $isOrg: Boolean!, $isFork: Boolean!, $isArchived: Boolean!, $visibility: RepositoryVisibility!, $cursor: String) {
+	organization(login: $owner) @include(if: $isOrg) {
+		repositories(first: 100, after: $cursor, isFork: $isFork, isArchived: $isArchived, visibility: $visibility, orderBy: {field:NAME,direction:ASC}) {
+			pageInfo {
+				hasNextPage
+				endCursor
+			}
+			nodes {
+				name
+				url
+			}
+		}
+	}
+	user(login: $owner) @include(if: $isUser) {
+		repositories(first: 100, after: $cursor, isFork: $isFork, isArchived: $isArchived, visibility: $visibility, orderBy: {field:NAME,direction:ASC}) {
+			pageInfo {
+				hasNextPage
+				endCursor
+			}
+			nodes {
+				name
+				url
+			}
+		}
+	}
+}
+`
+
+func getRepositories(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	owner string,
+	isUser bool,
+	isOrg bool,
+	isFork bool,
+	isArchived bool,
+	visibility RepositoryVisibility,
+	cursor string,
+) (data_ *getRepositoriesResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "getRepositories",
+		Query:  getRepositories_Operation,
+		Variables: &__getRepositoriesInput{
+			Owner:      owner,
+			IsUser:     isUser,
+			IsOrg:      isOrg,
+			IsFork:     isFork,
+			IsArchived: isArchived,
+			Visibility: visibility,
+			Cursor:     cursor,
+		},
+	}
+
+	data_ = &getRepositoriesResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

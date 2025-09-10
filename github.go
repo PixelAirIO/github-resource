@@ -5,6 +5,8 @@ package githubresource
 import (
 	"context"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -21,6 +23,7 @@ type GithubClient interface {
 	APIEndpoint() string
 	AccessToken() string
 	ListPullRequests(owner string, repo string, states []PullRequestState, labels []string) ([]PullRequest, error)
+	GetRepositories(owner string, ownerType string, getForks bool, getArchived bool, visibility RepositoryVisibility) ([]Repository, error)
 }
 
 type githubClient struct {
@@ -55,6 +58,14 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 	})
 
 	return &githubClient{client: client, config: cfg}, nil
+}
+
+func (g *githubClient) APIEndpoint() string {
+	return g.config.APIEndpoint
+}
+
+func (g *githubClient) AccessToken() string {
+	return g.config.AccessToken
 }
 
 type PullRequest struct {
@@ -113,10 +124,106 @@ query getPullRequests(
 	return prs, nil
 }
 
-func (g *githubClient) APIEndpoint() string {
-	return g.config.APIEndpoint
+type Repository struct {
+	Name string  `json:"name"`
+	Url  url.URL `json:"url"`
 }
 
-func (g *githubClient) AccessToken() string {
-	return g.config.AccessToken
+// Returns repositories for a user or organization
+func (g *githubClient) GetRepositories(owner string, ownerType string, getForks bool, getArchived bool, visibility RepositoryVisibility) ([]Repository, error) {
+	_ = `# @genqlient
+	query getRepositories(
+    $owner: String!
+    $isUser: Boolean!
+    $isOrg: Boolean!
+    $isFork: Boolean!
+    $isArchived: Boolean!
+    $visibility: RepositoryVisibility!
+    $cursor: String
+) {
+    # For an organization
+    organization(login: $owner) @include(if: $isOrg) {
+        repositories(
+            first: 100
+            after: $cursor
+            isFork: $isFork
+            isArchived: $isArchived
+            visibility: $visibility
+            orderBy: { field: NAME, direction: ASC }
+        ) {
+            pageInfo {
+                hasNextPage
+                endCursor
+            }
+            nodes {
+                name
+                url
+            }
+        }
+    }
+
+    # For a user
+    user(login: $owner) @include(if: $isUser) {
+        repositories(
+            first: 100
+            after: $cursor
+            isFork: $isFork
+            isArchived: $isArchived
+            visibility: $visibility
+            orderBy: { field: NAME, direction: ASC }
+        ) {
+            pageInfo {
+                hasNextPage
+                endCursor
+            }
+            nodes {
+                name
+                url
+            }
+        }
+    }
+}`
+	repos := []Repository{}
+	ctx := context.Background()
+	hasNextPage := true
+	endCursor := ""
+
+	var isUser, isOrg bool
+	switch strings.ToLower(ownerType) {
+	case "user":
+		isUser = true
+	case "organization":
+		isOrg = true
+	}
+
+	for hasNextPage {
+		resp, err := getRepositories(ctx, g.client, owner, isUser, isOrg, getForks, getArchived, visibility, endCursor)
+		if err != nil {
+			return nil, err
+		}
+
+		if isUser {
+			for _, v := range resp.User.Repositories.Nodes {
+				repos = append(repos, Repository{
+					Name: v.Name,
+					Url:  v.Url,
+				})
+			}
+
+			hasNextPage = resp.User.Repositories.PageInfo.HasNextPage
+			endCursor = resp.User.Repositories.PageInfo.EndCursor
+		} else {
+			for _, v := range resp.Organization.Repositories.Nodes {
+				repos = append(repos, Repository{
+					Name: v.Name,
+					Url:  v.Url,
+				})
+			}
+
+			hasNextPage = resp.Organization.Repositories.PageInfo.HasNextPage
+			endCursor = resp.Organization.Repositories.PageInfo.EndCursor
+		}
+	}
+
+	return repos, nil
 }
