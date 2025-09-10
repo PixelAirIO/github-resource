@@ -18,7 +18,7 @@ resources:
 - name: prs
   type: github
   source:
-    kind: prs # One of: prs, pr, release, repositories
+    kind: prs # One of: prs, pr, release, repositories, branches
     config:
       access_token: gh_pat...
       # See below for config options, depending on which kind is selected
@@ -32,6 +32,7 @@ The following `kind`'s are supported:
 * [`pr`](#kind-pr) - Work with a single Pull Request.
 * [`release`](#kind-release) - Track and publish GitHub releases.
 * [`repositories`](#kind-repositories) - Lists repositories for a GitHub organization or team. Does not clone the repositories.
+* [`branches`](#kind-branches) - Lists branches for a GitHub repository. Does not fetch the branches or clone the repository.
 
 ## Configuring Authentication
 
