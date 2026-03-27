@@ -11,7 +11,7 @@ resource_types:
 - name: github
   type: registry-image
   source:
-    repository: ghcr.io/pixelairio/github-resource
+    repository: docker.io/pixelairio/github-resource
     tag: latest
 
 resources:
@@ -31,8 +31,6 @@ The following `kind`'s are supported:
 * [`prs`](#kind-prs) - Work with multiple Pull Requests at once.
 * [`pr`](#kind-pr) - Work with a single Pull Request.
 * [`release`](#kind-release) - Track and publish GitHub releases.
-* [`repositories`](#kind-repositories) - Lists repositories for a GitHub organization or team. Does not clone the repositories.
-* [`branches`](#kind-branches) - Lists branches for a GitHub repository. Does not fetch the branches or clone the repository.
 
 ## Configuring Authentication
 
@@ -69,11 +67,6 @@ The following table outlines the required permissions for each `kind`.
     </tr>
     <tr>
         <td><code>release</code></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><code>repositories</code></td>
         <td></td>
         <td></td>
     </tr>
@@ -130,14 +123,3 @@ of the resource can be used to set multiple statuses on the PR.
 ## `kind: release`
 
 Tracks and publishes GitHub releases.
-
-## `kind: repositories`
-
-Lists all repositories for a given GitHub organization or team. Does not clone
-the repositories. The `put` step is not implemented and will error if you try
-to use it.
-
-## `kind: branches`
-
-Lists all branches for a given GitHub repository. The `put` step is not
-implemented and will error if you try to use it.
