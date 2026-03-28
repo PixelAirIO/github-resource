@@ -1,4 +1,4 @@
-module github.com/pixel-air/github-resource
+module github.com/PixelAirIO/github-resource
 
 go 1.25
 

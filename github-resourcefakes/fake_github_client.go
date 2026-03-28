@@ -4,7 +4,7 @@ package githubresourcefakes
 import (
 	"sync"
 
-	githubresource "github.com/pixel-air/github-resource"
+	githubresource "github.com/PixelAirIO/github-resource"
 )
 
 type FakeGithubClient struct {

@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	ghr "github.com/pixel-air/github-resource"
-	"github.com/pixel-air/github-resource/kinds/prs"
+	ghr "github.com/PixelAirIO/github-resource"
+	"github.com/PixelAirIO/github-resource/kinds/prs"
 )
 
 func NewKind(stdin []byte) ghr.Kind {

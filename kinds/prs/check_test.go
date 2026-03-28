@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	gh "github.com/pixel-air/github-resource"
-	ghf "github.com/pixel-air/github-resource/github-resourcefakes"
+	gh "github.com/PixelAirIO/github-resource"
+	ghf "github.com/PixelAirIO/github-resource/github-resourcefakes"
 )
 
 func TestCheckValidateReturnsErrors(t *testing.T) {

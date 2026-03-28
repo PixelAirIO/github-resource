@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	gh "github.com/pixel-air/github-resource"
+	gh "github.com/PixelAirIO/github-resource"
 )
 
 type checkRequest struct {

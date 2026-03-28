@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/pixel-air/github-resource/factory"
+	"github.com/PixelAirIO/github-resource/factory"
 )
 
 func init() {
