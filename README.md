@@ -19,16 +19,15 @@ resources:
   type: github
   source:
     kind: prs # One of: prs, pr, release, repositories, branches
-    config:
-      access_token: gh_pat...
-      # See below for config options, depending on which kind is selected
+    access_token: gh_pat...
+    # See below for config options, depending on which kind is selected
 ```
 
 ## Picking the Resource `kind`
 
 The following `kind`'s are supported:
 
-* [`prs`](#kind-prs) - Work with multiple Pull Requests at once.
+* [`prs`](#kind-prs) - Returns a list of pull requests.
 * [`pr`](#kind-pr) - Work with a single Pull Request.
 * [`release`](#kind-release) - Track and publish GitHub releases.
 
@@ -38,11 +37,15 @@ Authentication is optional if you're accessing public repositories, but you'll
 likely want to configure it to avoid rate-limits. Create a [Personal Access
 token](https://github.com/settings/personal-access-tokens) (classic or
 fine-grained is fine). You provide the resource the access token via the
-`config.access_token` field.
+`access_token` field.
+
+You can also configure the the resource to use a token from a GitHub or OAuth
+app. See the GitHub docs for details:
+https://docs.github.com/en/graphql/guides/forming-calls-with-graphql#authenticating-with-graphql
 
 ## Custom Endpoint
 
-The endpoint can be configured by setting `config.api_endpoint` field. It will
+The endpoint can be configured by setting `api_endpoint` field. It will
 default to `https://api.github.com/graphql`. Only the GraphQL API is supported
 at this time because you're less likely to hit API rate limits compared to the
 REST API.
@@ -75,9 +78,10 @@ The following table outlines the required permissions for each `kind`.
 
 ## `kind: prs`
 
-Returns a list of Pull Requests against a given repository. Can filter by the PR's status and labels.
+Returns a list of Pull Requests against a given repository. Can filter by the
+PR's status, labels, draft status, and target branch the PR wants to merge into.
 
-`source.config` has the following additional fields:
+`source` has the following additional fields:
 <table>
     <tr>
         <th>Field Name</th>
@@ -101,14 +105,41 @@ Returns a list of Pull Requests against a given repository. Can filter by the PR
     </tr>
     <tr>
         <td><code>labels</code><em>(Optional)<em></td>
-        <td>A list of label(s) to filter PR's by.</td>
+        <td>A list of label(s) to filter PR's by. A PR must have all listed labels to be matched.</td>
+    </tr>
+    <tr>
+        <td><code>target_branch</code><em>(Optional)<em></td>
+        <td>Only track PRs that merge into the specified branch.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>exclude_drafts</code><em>(Optional)<em>
+            <br>
+            Default Value: <code>false</code>
+        </td>
+        <td>Exclude PRs that are currently drafts.</td>
     </tr>
 </table>
 
 Only the `get` step is supported. The `put` step is a no-op and will error if
 you try to use it. The `get` step will write the list of PR's to a file,
-`prs.json`, as a JSON array of the PR numbers. The numbers will be saved as
-strings, not integers.
+`prs.json`, as a JSON array of the PR numbers and other information. The numbers
+will be saved as strings, not integers.
+
+Example of `prs.json`:
+```json
+[
+  {
+    "number": "1234",
+    "url": "http://...",
+    "target_branch": "main"
+  }
+]
+```
+
+In the case when there are no matching PRs, a special `none` version will be
+generated. The `get` step will populate `prs.json` with an empty array that can
+be passed to the `across` step.
 
 ## `kind: pr`
 

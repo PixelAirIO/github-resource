@@ -10,71 +10,28 @@ import (
 	ghf "github.com/PixelAirIO/github-resource/github-resourcefakes"
 )
 
-func TestCheckValidateReturnsErrors(t *testing.T) {
-	assert := require.New(t)
-	req := checkRequest{
-		Source: Source{
-			Config: Config{
-				Owner:  "",
-				Repo:   "",
-				States: nil,
-				Labels: nil,
-			},
-		},
-	}
-
-	actualErr := checkValidate(&req)
-
-	assert.ErrorContains(actualErr, "owner field is required")
-	assert.ErrorContains(actualErr, "repository field is required")
-	assert.Contains(req.Source.Config.States, gh.PullRequestStateOpen, "sets an empty 'States' to OPEN")
-	assert.Nil(req.Source.Config.Labels, "labels is unmodified")
-}
-
-func TestCheckValidateReturnsNoErrors(t *testing.T) {
-	assert := require.New(t)
-	req := checkRequest{
-		Source: Source{
-			Config: Config{
-				Owner:  "some-owner",
-				Repo:   "some-repo",
-				States: nil,
-				Labels: nil,
-			},
-		},
-	}
-
-	actualErr := checkValidate(&req)
-
-	assert.NoError(actualErr)
-	assert.Contains(req.Source.Config.States, gh.PullRequestStateOpen, "sets an empty 'States' to OPEN")
-	assert.Nil(req.Source.Config.Labels, "labels is unmodified")
-}
-
 func TestInternalCheckNoPriorVersion(t *testing.T) {
 	assert := require.New(t)
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner:  "some-owner",
-				Repo:   "some-repo",
-				States: nil,
-				Labels: nil,
+				Owner: "some-owner",
+				Repo:  "some-repo",
 			},
 		},
 	}
 
 	client := &ghf.FakeGithubClient{}
 	client.ListPullRequestsReturns([]gh.PullRequest{
-		{ID: 1},
-		{ID: 3},
-		{ID: 6},
-		{ID: 88},
+		{Number: "1"},
+		{Number: "3"},
+		{Number: "6"},
+		{Number: "88"},
 	}, nil)
 
 	versions := check(req, client)
 	assert.Len(versions, 1)
-	assert.Equal(versions[0].Prs, "1,3,6,88")
+	assert.Equal("1,3,6,88", versions[0].Prs)
 }
 
 func TestInternalCheckMatchesPriorVersion(t *testing.T) {
@@ -82,10 +39,8 @@ func TestInternalCheckMatchesPriorVersion(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner:  "some-owner",
-				Repo:   "some-repo",
-				States: nil,
-				Labels: nil,
+				Owner: "some-owner",
+				Repo:  "some-repo",
 			},
 		},
 		Version: version{
@@ -96,10 +51,10 @@ func TestInternalCheckMatchesPriorVersion(t *testing.T) {
 
 	client := &ghf.FakeGithubClient{}
 	client.ListPullRequestsReturns([]gh.PullRequest{
-		{ID: 1},
-		{ID: 3},
-		{ID: 6},
-		{ID: 88},
+		{Number: "1"},
+		{Number: "3"},
+		{Number: "6"},
+		{Number: "88"},
 	}, nil)
 
 	versions := check(req, client)
@@ -111,10 +66,8 @@ func TestInternalCheckDoesNotMatchesPriorVersion(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner:  "some-owner",
-				Repo:   "some-repo",
-				States: nil,
-				Labels: nil,
+				Owner: "some-owner",
+				Repo:  "some-repo",
 			},
 		},
 		Version: version{
@@ -125,14 +78,105 @@ func TestInternalCheckDoesNotMatchesPriorVersion(t *testing.T) {
 
 	client := &ghf.FakeGithubClient{}
 	client.ListPullRequestsReturns([]gh.PullRequest{
-		{ID: 1},
-		{ID: 3},
-		{ID: 6},
-		{ID: 88},
-		{ID: 102},
+		{Number: "1"},
+		{Number: "3"},
+		{Number: "6"},
+		{Number: "88"},
+		{Number: "102"},
 	}, nil)
 
 	versions := check(req, client)
 	assert.Len(versions, 1, "returns a new version because it doesn't match the prior version")
-	assert.Equal(versions[0].Prs, "1,3,6,88,102")
+	assert.Equal("1,3,6,88,102", versions[0].Prs)
+}
+
+func TestExcludingDrafts(t *testing.T) {
+	assert := require.New(t)
+	req := checkRequest{
+		Source: Source{
+			Config: Config{
+				Owner:         "some-owner",
+				Repo:          "some-repo",
+				ExcludeDrafts: true,
+			},
+		},
+	}
+
+	client := &ghf.FakeGithubClient{}
+	client.ListPullRequestsReturns([]gh.PullRequest{
+		{Number: "1", IsDraft: false},
+		{Number: "3", IsDraft: true},
+		{Number: "6", IsDraft: false},
+		{Number: "88", IsDraft: false},
+	}, nil)
+
+	versions := check(req, client)
+	assert.Len(versions, 1)
+	assert.Equal("1,6,88", versions[0].Prs)
+}
+
+func TestMatchingTargetBranch(t *testing.T) {
+	assert := require.New(t)
+	req := checkRequest{
+		Source: Source{
+			Config: Config{
+				Owner:        "some-owner",
+				Repo:         "some-repo",
+				TargetBranch: "other",
+			},
+		},
+	}
+
+	client := &ghf.FakeGithubClient{}
+	client.ListPullRequestsReturns([]gh.PullRequest{
+		{Number: "1", TargetBranch: "main"},
+		{Number: "3", TargetBranch: "other"},
+		{Number: "6", TargetBranch: "other"},
+		{Number: "88", TargetBranch: "main"},
+	}, nil)
+
+	versions := check(req, client)
+	assert.Len(versions, 1)
+	assert.Equal("3,6", versions[0].Prs)
+}
+
+func TestNoMatchingPRsReturnsNoneAsTheVersion(t *testing.T) {
+	assert := require.New(t)
+	req := checkRequest{
+		Source: Source{
+			Config: Config{
+				Owner: "some-owner",
+				Repo:  "some-repo",
+			},
+		},
+	}
+
+	client := &ghf.FakeGithubClient{}
+	client.ListPullRequestsReturns([]gh.PullRequest{}, nil)
+
+	versions := check(req, client)
+	assert.Len(versions, 1)
+	assert.Equal("none", versions[0].Prs, "version should be set to the string 'none'")
+}
+
+func TestNoMatchingPRsReturnsEmptyListWhenPriorVersionIsNone(t *testing.T) {
+	assert := require.New(t)
+	req := checkRequest{
+		Source: Source{
+			Config: Config{
+				Owner: "some-owner",
+				Repo:  "some-repo",
+			},
+		},
+		Version: version{
+			Prs:       "none",
+			Timestamp: time.Now(),
+		},
+	}
+
+	client := &ghf.FakeGithubClient{}
+	client.ListPullRequestsReturns([]gh.PullRequest{}, nil)
+
+	versions := check(req, client)
+	assert.Len(versions, 0, "prior version is 'none' so duplicate version should not be returned")
 }

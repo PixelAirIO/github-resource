@@ -5,6 +5,7 @@ package githubresource
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -66,7 +67,10 @@ func (g *githubClient) AccessToken() string {
 }
 
 type PullRequest struct {
-	ID int
+	Number       string `json:"number"`
+	Url          string `json:"url"`
+	IsDraft      bool   `json:"-"`
+	TargetBranch string `json:"target_branch"`
 }
 
 // Returns pull requests matching the states and labels provided.
@@ -114,7 +118,12 @@ query getPullRequests(
 		}
 
 		for _, v := range resp.Repository.PullRequests.Nodes {
-			prs = append(prs, PullRequest{ID: v.Number})
+			prs = append(prs, PullRequest{
+				Number:       strconv.Itoa(v.Number),
+				Url:          v.Permalink.String(),
+				IsDraft:      v.IsDraft,
+				TargetBranch: v.BaseRefName,
+			})
 		}
 
 		hasNextPage = resp.Repository.PullRequests.PageInfo.HasNextPage

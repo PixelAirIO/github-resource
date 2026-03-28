@@ -5,5 +5,5 @@ import (
 )
 
 func (*Prs) Out(stdin []byte, src string) {
-	log.Fatal("Step is not implemented. Do not use.")
+	log.Fatal("Step is not implemented for kind 'prs'.")
 }

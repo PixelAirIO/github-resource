@@ -3,10 +3,8 @@ package prs
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
@@ -28,7 +26,7 @@ func (*Prs) Check(stdin []byte) {
 		log.Fatalf("failed to unmarshal check request: %v", err)
 	}
 
-	err = checkValidate(&request)
+	err = validateSource(&request.Source)
 	if err != nil {
 		log.Fatalf("validation error: %v", err)
 	}
@@ -48,42 +46,54 @@ func (*Prs) Check(stdin []byte) {
 	fmt.Println(string(out))
 }
 
-func checkValidate(req *checkRequest) (err error) {
-	if req.Source.Config.Owner == "" {
-		err = errors.Join(errors.New("owner field is required"), err)
-	}
-
-	if req.Source.Config.Repo == "" {
-		err = errors.Join(errors.New("repository field is required"), err)
-	}
-
-	for _, v := range req.Source.Config.States {
-		if v != gh.PullRequestStateOpen && v != gh.PullRequestStateClosed && v != gh.PullRequestStateMerged {
-			err = errors.Join(fmt.Errorf("unknown state in source.config.states '%s'. Must be one of OPEN, CLOSED, MERGED", v), err)
-		}
-	}
-
-	if len(req.Source.Config.States) == 0 {
-		req.Source.Config.States = []gh.PullRequestState{gh.PullRequestStateOpen}
-	}
-
-	return err
-}
-
 func check(request checkRequest, ghc gh.GithubClient) []version {
 	prs, err := ghc.ListPullRequests(
-		request.Source.Config.Owner,
-		request.Source.Config.Repo,
-		request.Source.Config.States,
-		request.Source.Config.Labels)
+		request.Source.Owner,
+		request.Source.Repo,
+		request.Source.States,
+		request.Source.Labels)
 
 	if err != nil {
 		log.Fatalf("failed to get pull requests: %v", err)
 	}
 
+	if len(prs) == 0 {
+		log.Println("No matching PRs found.")
+		if request.Version.Prs == "none" {
+			return []version{}
+		}
+
+		return []version{
+			{
+				Prs:       "none",
+				Timestamp: time.Now(),
+			},
+		}
+	}
+
+	if request.Source.Config.ExcludeDrafts {
+		nonDraftPrs := []gh.PullRequest{}
+		for _, p := range prs {
+			if !p.IsDraft {
+				nonDraftPrs = append(nonDraftPrs, p)
+			}
+		}
+		prs = nonDraftPrs
+	}
+
+	if request.Source.Config.TargetBranch != "" {
+		matchingPrs := []gh.PullRequest{}
+		for _, p := range prs {
+			if p.TargetBranch == request.Source.Config.TargetBranch {
+				matchingPrs = append(matchingPrs, p)
+			}
+		}
+		prs = matchingPrs
+	}
+
 	prsVersion := ""
 	for _, p := range prs {
-		prsVersion += strconv.Itoa(p.ID) + ","
+		prsVersion += p.Number + ","
 	}
 	prsVersion = strings.TrimSuffix(prsVersion, ",")
 
