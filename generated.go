@@ -4,6 +4,7 @@ package githubresource
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -92,11 +93,32 @@ func (v *getPullRequestsRepositoryPullRequestsPullRequestConnection) GetPageInfo
 type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest struct {
 	// Identifies the pull request number.
 	Number int `json:"number"`
+	// Identifies if the pull request is a draft.
+	IsDraft bool `json:"isDraft"`
+	// The permalink to the pull request.
+	Permalink url.URL `json:"permalink"`
+	// Identifies the name of the base Ref associated with the pull request, even if the ref has been deleted.
+	BaseRefName string `json:"baseRefName"`
 }
 
 // GetNumber returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Number, and is useful for accessing the field via an interface.
 func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetNumber() int {
 	return v.Number
+}
+
+// GetIsDraft returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.IsDraft, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetIsDraft() bool {
+	return v.IsDraft
+}
+
+// GetPermalink returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Permalink, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetPermalink() url.URL {
+	return v.Permalink
+}
+
+// GetBaseRefName returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.BaseRefName, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetBaseRefName() string {
+	return v.BaseRefName
 }
 
 // getPullRequestsRepositoryPullRequestsPullRequestConnectionPageInfo includes the requested fields of the GraphQL type PageInfo.
@@ -136,6 +158,9 @@ query getPullRequests ($owner: String!, $name: String!, $states: [PullRequestSta
 		pullRequests(first: 100, after: $endCursor, states: $states, labels: $labels, orderBy: {field:CREATED_AT,direction:ASC}) {
 			nodes {
 				number
+				isDraft
+				permalink
+				baseRefName
 			}
 			pageInfo {
 				endCursor

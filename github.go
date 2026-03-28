@@ -91,6 +91,9 @@ query getPullRequests(
 		) {
             nodes {
                 number
+                isDraft
+                permalink
+                baseRefName
             }
             pageInfo {
 	            endCursor
