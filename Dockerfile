@@ -21,9 +21,9 @@ RUN set -e; for pkg in $(go list ./...); do \
     done
 
 FROM ${base_image} AS resource
-LABEL org.opencontainers.image.url="https://ghcr.io/pixelairio/github-resource"
+LABEL org.opencontainers.image.url="https://docker.io/pixelairio/github-resource"
 LABEL org.opencontainers.image.source="https://github.com/PixelAirIO/github-resource"
-LABEL org.opencontainers.image.authors="Pixel Air IO https://pixelair.io"
+LABEL org.opencontainers.image.authors="Pixel Air IO"
 LABEL org.opencontainers.image.vendor="Pixel Air IO"
 COPY --from=builder assets/ /opt/resource/
 
