@@ -141,7 +141,7 @@ In the case when there are no matching PRs, a special `none` version will be
 generated. The `get` step will populate `prs.json` with an empty array that can
 be passed to the `across` step.
 
-## `kind: pr`
+## `kind: pr` - NOT IMPLEMENTED YET
 
 Allows you to interact with a single Pull Request. Will track commits pushed to the pull request.
 
@@ -151,6 +151,6 @@ into the target branch.
 The `put` step can set the status on a commit of the Pull Request. One instance
 of the resource can be used to set multiple statuses on the PR.
 
-## `kind: release`
+## `kind: release` - NOT IMPLEMENTED YET
 
 Tracks and publishes GitHub releases.
