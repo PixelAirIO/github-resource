@@ -1,10 +1,12 @@
 package githubresource
 
 type BaseRequest struct {
-	Source struct {
-		Kind   string `json:"kind"`
-		Config Config `json:"config"`
-	} `json:"source"`
+	Source `json:"source"`
+}
+
+type Source struct {
+	Config
+	Kind string `json:"kind"`
 }
 
 type Kind interface {
