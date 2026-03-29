@@ -38,13 +38,11 @@ type FakeGithubClient struct {
 	hostEndpointReturnsOnCall map[int]struct {
 		result1 string
 	}
-	ListPullRequestsStub        func(string, string, []githubresource.PullRequestState, []string) ([]githubresource.PullRequest, error)
+	ListPullRequestsStub        func([]githubresource.PullRequestState, []string) ([]githubresource.PullRequest, error)
 	listPullRequestsMutex       sync.RWMutex
 	listPullRequestsArgsForCall []struct {
-		arg1 string
-		arg2 string
-		arg3 []githubresource.PullRequestState
-		arg4 []string
+		arg1 []githubresource.PullRequestState
+		arg2 []string
 	}
 	listPullRequestsReturns struct {
 		result1 []githubresource.PullRequest
@@ -217,31 +215,29 @@ func (fake *FakeGithubClient) HostEndpointReturnsOnCall(i int, result1 string) {
 	}{result1}
 }
 
-func (fake *FakeGithubClient) ListPullRequests(arg1 string, arg2 string, arg3 []githubresource.PullRequestState, arg4 []string) ([]githubresource.PullRequest, error) {
-	var arg3Copy []githubresource.PullRequestState
-	if arg3 != nil {
-		arg3Copy = make([]githubresource.PullRequestState, len(arg3))
-		copy(arg3Copy, arg3)
+func (fake *FakeGithubClient) ListPullRequests(arg1 []githubresource.PullRequestState, arg2 []string) ([]githubresource.PullRequest, error) {
+	var arg1Copy []githubresource.PullRequestState
+	if arg1 != nil {
+		arg1Copy = make([]githubresource.PullRequestState, len(arg1))
+		copy(arg1Copy, arg1)
 	}
-	var arg4Copy []string
-	if arg4 != nil {
-		arg4Copy = make([]string, len(arg4))
-		copy(arg4Copy, arg4)
+	var arg2Copy []string
+	if arg2 != nil {
+		arg2Copy = make([]string, len(arg2))
+		copy(arg2Copy, arg2)
 	}
 	fake.listPullRequestsMutex.Lock()
 	ret, specificReturn := fake.listPullRequestsReturnsOnCall[len(fake.listPullRequestsArgsForCall)]
 	fake.listPullRequestsArgsForCall = append(fake.listPullRequestsArgsForCall, struct {
-		arg1 string
-		arg2 string
-		arg3 []githubresource.PullRequestState
-		arg4 []string
-	}{arg1, arg2, arg3Copy, arg4Copy})
+		arg1 []githubresource.PullRequestState
+		arg2 []string
+	}{arg1Copy, arg2Copy})
 	stub := fake.ListPullRequestsStub
 	fakeReturns := fake.listPullRequestsReturns
-	fake.recordInvocation("ListPullRequests", []interface{}{arg1, arg2, arg3Copy, arg4Copy})
+	fake.recordInvocation("ListPullRequests", []interface{}{arg1Copy, arg2Copy})
 	fake.listPullRequestsMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -255,17 +251,17 @@ func (fake *FakeGithubClient) ListPullRequestsCallCount() int {
 	return len(fake.listPullRequestsArgsForCall)
 }
 
-func (fake *FakeGithubClient) ListPullRequestsCalls(stub func(string, string, []githubresource.PullRequestState, []string) ([]githubresource.PullRequest, error)) {
+func (fake *FakeGithubClient) ListPullRequestsCalls(stub func([]githubresource.PullRequestState, []string) ([]githubresource.PullRequest, error)) {
 	fake.listPullRequestsMutex.Lock()
 	defer fake.listPullRequestsMutex.Unlock()
 	fake.ListPullRequestsStub = stub
 }
 
-func (fake *FakeGithubClient) ListPullRequestsArgsForCall(i int) (string, string, []githubresource.PullRequestState, []string) {
+func (fake *FakeGithubClient) ListPullRequestsArgsForCall(i int) ([]githubresource.PullRequestState, []string) {
 	fake.listPullRequestsMutex.RLock()
 	defer fake.listPullRequestsMutex.RUnlock()
 	argsForCall := fake.listPullRequestsArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeGithubClient) ListPullRequestsReturns(result1 []githubresource.PullRequest, result2 error) {

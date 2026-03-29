@@ -20,18 +20,22 @@ resources:
   source:
     kind: prs # One of: prs, pr, release
     access_token: gh_pat...
+    repository: owner/repo
     # See below for config options, depending on which kind is selected
 ```
 
-## Picking the Resource `kind`
+The `kind`, `access_token`, `repository` fields are always required. The
+following sections explain each field's usage.
+
+## `kind` - Picking the Resource to Track
 
 The following `kind`'s are supported:
 
 * [`prs`](#kind-prs) - Returns a list of pull requests.
-* [`pr`](#kind-pr) - Work with a single Pull Request.
-* [`release`](#kind-release) - Track and publish GitHub releases.
+* [`pr`](#kind-pr) - Work with a single Pull Request, changing check statuses or posting comments.
+* [`release`](#kind-release) - Track or publish GitHub releases.
 
-## Configuring Authentication
+## `access_token` - Configuring Authentication
 
 Authentication is optional if you're accessing public repositories, but you'll
 likely want to configure it to avoid rate-limits. Create a [Personal Access
@@ -42,6 +46,13 @@ fine-grained is fine). You provide the resource the access token via the
 You can also configure the the resource to use a token from a GitHub or OAuth
 app. See the GitHub docs for details:
 https://docs.github.com/en/graphql/guides/forming-calls-with-graphql#authenticating-with-graphql
+
+## `repository`
+
+This is the repository to target in the format of `OWNER/REPO`. For example, the
+repository `https://github.com/example/my-app` would become `repository:
+example/my-app`.
+
 
 ## Custom Endpoint
 

@@ -48,8 +48,6 @@ func (*Prs) Check(stdin []byte) {
 
 func check(request checkRequest, ghc gh.GithubClient) []version {
 	prs, err := ghc.ListPullRequests(
-		request.Source.Owner,
-		request.Source.Repo,
 		request.Source.States,
 		request.Source.Labels)
 

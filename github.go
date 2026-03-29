@@ -4,8 +4,10 @@ package githubresource
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -16,6 +18,7 @@ type Config struct {
 	AccessToken  string `json:"access_token"`
 	APIEndpoint  string `json:"api_endpoint"`
 	HostEndpoint string `json:"host_endpoint"`
+	Repository   string `json:"repository"`
 }
 
 //counterfeiter:generate . GithubClient
@@ -23,11 +26,13 @@ type GithubClient interface {
 	APIEndpoint() string
 	HostEndpoint() string
 	AccessToken() string
-	ListPullRequests(owner string, repo string, states []PullRequestState, labels []string) ([]PullRequest, error)
+	ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error)
 }
 
 type githubClient struct {
 	client graphql.Client
+	owner  string
+	repo   string
 	config Config
 }
 
@@ -57,6 +62,15 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		cfg.HostEndpoint = DefaultHostEndpoint
 	}
 
+	if cfg.Repository == "" {
+		return nil, errors.New("repository is blank and must be set. Expected format is 'OWNER/REPO'.")
+	}
+
+	repository := strings.Split(cfg.Repository, "/")
+	if len(repository) != 2 {
+		return nil, errors.New("unexpected format for 'repository'. Expected format is 'OWNER/REPO'.")
+	}
+
 	client := graphql.NewClient(cfg.APIEndpoint, &http.Client{
 		Transport: &authedTransport{
 			accessToken: cfg.AccessToken,
@@ -64,7 +78,12 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		},
 	})
 
-	return &githubClient{client: client, config: cfg}, nil
+	return &githubClient{
+		client: client,
+		owner:  repository[0],
+		repo:   repository[1],
+		config: cfg,
+	}, nil
 }
 
 func (g *githubClient) APIEndpoint() string {
@@ -89,7 +108,7 @@ type PullRequest struct {
 // Returns pull requests matching the states and labels provided.
 //
 // If you want to match against no labels, pass in nil.
-func (g *githubClient) ListPullRequests(owner string, repo string, states []PullRequestState, labels []string) ([]PullRequest, error) {
+func (g *githubClient) ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error) {
 	_ = `# @genqlient
 query getPullRequests(
     $owner: String!
@@ -125,7 +144,7 @@ query getPullRequests(
 	endCursor := ""
 
 	for hasNextPage {
-		resp, err := getPullRequests(ctx, g.client, owner, repo, states, labels, endCursor)
+		resp, err := getPullRequests(ctx, g.client, g.owner, g.repo, states, labels, endCursor)
 		if err != nil {
 			return nil, err
 		}

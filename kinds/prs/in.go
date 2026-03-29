@@ -85,8 +85,6 @@ func in(req inRequest, ghc gh.GithubClient) ([]gh.PullRequest, error) {
 	}
 
 	remotePrs, err := ghc.ListPullRequests(
-		req.Source.Owner,
-		req.Source.Repo,
 		req.Source.States,
 		req.Source.Labels,
 	)

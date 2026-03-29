@@ -9,7 +9,9 @@ import (
 func TestNewGithubClientReturnsAClient(t *testing.T) {
 	assert := require.New(t)
 
-	cfg := Config{}
+	cfg := Config{
+		Repository: "owner/repo",
+	}
 	client, err := NewGithubClient(cfg)
 	assert.NoError(err)
 	assert.NotNil(client)
@@ -21,6 +23,7 @@ func TestNewGithubClientDoesNotOverrideGivenEndpoint(t *testing.T) {
 	assert := require.New(t)
 
 	cfg := Config{
+		Repository:   "owner/repo",
 		APIEndpoint:  "https://custom.endpoint/graphql",
 		HostEndpoint: "https://custom.host/",
 		AccessToken:  "some-access-token",
@@ -31,4 +34,26 @@ func TestNewGithubClientDoesNotOverrideGivenEndpoint(t *testing.T) {
 	assert.Equal(cfg.APIEndpoint, client.APIEndpoint())
 	assert.Equal(cfg.HostEndpoint, client.HostEndpoint())
 	assert.Equal(cfg.AccessToken, client.AccessToken())
+}
+
+func TestNewGithubClientErrorsWhenRepositoryIsBlank(t *testing.T) {
+	assert := require.New(t)
+
+	cfg := Config{}
+	client, err := NewGithubClient(cfg)
+	assert.Error(err)
+	assert.EqualError(err, "repository is blank and must be set. Expected format is 'OWNER/REPO'.")
+	assert.Nil(client)
+}
+
+func TestNewGithubClientErrorsWhenRepositoryIsMalformed(t *testing.T) {
+	assert := require.New(t)
+
+	cfg := Config{
+		Repository: "owner-repo",
+	}
+	client, err := NewGithubClient(cfg)
+	assert.Error(err)
+	assert.EqualError(err, "unexpected format for 'repository'. Expected format is 'OWNER/REPO'.")
+	assert.Nil(client)
 }
