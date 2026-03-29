@@ -28,6 +28,16 @@ type FakeGithubClient struct {
 	accessTokenReturnsOnCall map[int]struct {
 		result1 string
 	}
+	HostEndpointStub        func() string
+	hostEndpointMutex       sync.RWMutex
+	hostEndpointArgsForCall []struct {
+	}
+	hostEndpointReturns struct {
+		result1 string
+	}
+	hostEndpointReturnsOnCall map[int]struct {
+		result1 string
+	}
 	ListPullRequestsStub        func(string, string, []githubresource.PullRequestState, []string) ([]githubresource.PullRequest, error)
 	listPullRequestsMutex       sync.RWMutex
 	listPullRequestsArgsForCall []struct {
@@ -150,6 +160,59 @@ func (fake *FakeGithubClient) AccessTokenReturnsOnCall(i int, result1 string) {
 		})
 	}
 	fake.accessTokenReturnsOnCall[i] = struct {
+		result1 string
+	}{result1}
+}
+
+func (fake *FakeGithubClient) HostEndpoint() string {
+	fake.hostEndpointMutex.Lock()
+	ret, specificReturn := fake.hostEndpointReturnsOnCall[len(fake.hostEndpointArgsForCall)]
+	fake.hostEndpointArgsForCall = append(fake.hostEndpointArgsForCall, struct {
+	}{})
+	stub := fake.HostEndpointStub
+	fakeReturns := fake.hostEndpointReturns
+	fake.recordInvocation("HostEndpoint", []interface{}{})
+	fake.hostEndpointMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeGithubClient) HostEndpointCallCount() int {
+	fake.hostEndpointMutex.RLock()
+	defer fake.hostEndpointMutex.RUnlock()
+	return len(fake.hostEndpointArgsForCall)
+}
+
+func (fake *FakeGithubClient) HostEndpointCalls(stub func() string) {
+	fake.hostEndpointMutex.Lock()
+	defer fake.hostEndpointMutex.Unlock()
+	fake.HostEndpointStub = stub
+}
+
+func (fake *FakeGithubClient) HostEndpointReturns(result1 string) {
+	fake.hostEndpointMutex.Lock()
+	defer fake.hostEndpointMutex.Unlock()
+	fake.HostEndpointStub = nil
+	fake.hostEndpointReturns = struct {
+		result1 string
+	}{result1}
+}
+
+func (fake *FakeGithubClient) HostEndpointReturnsOnCall(i int, result1 string) {
+	fake.hostEndpointMutex.Lock()
+	defer fake.hostEndpointMutex.Unlock()
+	fake.HostEndpointStub = nil
+	if fake.hostEndpointReturnsOnCall == nil {
+		fake.hostEndpointReturnsOnCall = make(map[int]struct {
+			result1 string
+		})
+	}
+	fake.hostEndpointReturnsOnCall[i] = struct {
 		result1 string
 	}{result1}
 }

@@ -18,7 +18,7 @@ resources:
 - name: prs
   type: github
   source:
-    kind: prs # One of: prs, pr, release, repositories, branches
+    kind: prs # One of: prs, pr, release
     access_token: gh_pat...
     # See below for config options, depending on which kind is selected
 ```
@@ -45,10 +45,13 @@ https://docs.github.com/en/graphql/guides/forming-calls-with-graphql#authenticat
 
 ## Custom Endpoint
 
-The endpoint can be configured by setting `api_endpoint` field. It will
-default to `https://api.github.com/graphql`. Only the GraphQL API is supported
-at this time because you're less likely to hit API rate limits compared to the
-REST API.
+The endpoint can be configured by setting the `api_endpoint` and `host_endpoint`
+fields. `api_endpoint` will default to `https://api.github.com/graphql`.
+`host_endpoint` will default to `https://github.com` and is where repositories
+are hosted.
+
+Only the GraphQL API is supported at this time because you're less likely to hit
+API rate limits compared to the REST API.
 
 The following table outlines the required permissions for each `kind`.
 

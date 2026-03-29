@@ -13,13 +13,15 @@ import (
 //go:generate go tool counterfeiter -generate
 
 type Config struct {
-	AccessToken string `json:"access_token"`
-	APIEndpoint string `json:"api_endpoint"`
+	AccessToken  string `json:"access_token"`
+	APIEndpoint  string `json:"api_endpoint"`
+	HostEndpoint string `json:"host_endpoint"`
 }
 
 //counterfeiter:generate . GithubClient
 type GithubClient interface {
 	APIEndpoint() string
+	HostEndpoint() string
 	AccessToken() string
 	ListPullRequests(owner string, repo string, states []PullRequestState, labels []string) ([]PullRequest, error)
 }
@@ -41,11 +43,16 @@ func (a *authedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return a.transport.RoundTrip(req)
 }
 
-const DefaultEndpoint = "https://api.github.com/graphql"
+const DefaultGraphqlEndpoint = "https://api.github.com/graphql"
+const DefaultHostEndpoint = "https://github.com"
 
 func NewGithubClient(cfg Config) (GithubClient, error) {
 	if cfg.APIEndpoint == "" {
-		cfg.APIEndpoint = DefaultEndpoint
+		cfg.APIEndpoint = DefaultGraphqlEndpoint
+	}
+
+	if cfg.HostEndpoint == "" {
+		cfg.HostEndpoint = DefaultHostEndpoint
 	}
 
 	client := graphql.NewClient(cfg.APIEndpoint, &http.Client{
@@ -60,6 +67,10 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 
 func (g *githubClient) APIEndpoint() string {
 	return g.config.APIEndpoint
+}
+
+func (g *githubClient) HostEndpoint() string {
+	return g.config.HostEndpoint
 }
 
 func (g *githubClient) AccessToken() string {
