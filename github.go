@@ -39,7 +39,9 @@ type authedTransport struct {
 }
 
 func (a *authedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", "bearer "+a.accessToken)
+	if a.accessToken != "" {
+		req.Header.Set("Authorization", "bearer "+a.accessToken)
+	}
 	return a.transport.RoundTrip(req)
 }
 
