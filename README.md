@@ -54,15 +54,19 @@ repository `https://github.com/example/my-app` would become `repository:
 example/my-app`.
 
 
-## Custom Endpoint
+## Custom Endpoints
 
-The endpoint can be configured by setting the `api_endpoint` and `host_endpoint`
+The endpoints used can be configured by setting the following:
+
+- `api_endpoint_v4` - Defaults to `https://api.github.com/graphql`
+- `api_endpoint_v3` - Defaults to `https://api.github.com`
+- `host_endpoint` - Defaults to `https://github.com`
 fields. `api_endpoint` will default to `https://api.github.com/graphql`.
 `host_endpoint` will default to `https://github.com` and is where repositories
 are hosted.
 
-Only the GraphQL API is supported at this time because you're less likely to hit
-API rate limits compared to the REST API.
+We try to mostly use the GraphQL API because you're less likely to hit API rate
+limits compared to the REST API.
 
 The following table outlines the required permissions for each `kind`.
 
@@ -149,13 +153,59 @@ be passed to the `across` step.
 
 ## `kind: pr` - NOT IMPLEMENTED YET
 
-Allows you to interact with a single Pull Request. Will track commits pushed to the pull request.
+Allows you to interact with a single Pull Request. Will track commits pushed to
+the pull request and allow you to update the status checks of the PR and leave
+comments.
 
-The `get` step returns a commit from the Pull Request and locally merges them
-into the target branch.
+`source` has the following additional fields:
+<table>
+    <tr>
+        <th>Field Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>
+            <code>number</code><em>(Required)<em>
+        </td>
+        <td>The PR number that the resource will interact with.</td>
+    </tr>
+</table>
+
+The `get` checks out a commit from the Pull Request and locally merges them into
+the target branch.
 
 The `put` step can set the status on a commit of the Pull Request. One instance
-of the resource can be used to set multiple statuses on the PR.
+of the resource can be used to set multiple statuses on the PR by calling `put`
+with different `params`.
+
+The `put` step has the following params:
+
+<table>
+    <tr>
+        <th>Field Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>
+            <code>commit_sha</code><em>(Required)<em>
+        </td>
+        <td>The commit SHA that the PR check will be matched with on GitHub.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>name</code><em>(Required)<em>
+        </td>
+        <td>The name of the check that will be displayed in the list of PR checks for the PR (e.g. `unit-tests`, `integration`).</td>
+    </tr>
+    <tr>
+        <td><code>status</code><em>(Required)<em></td>
+        <td>One of: `pending`, `success`, `error`, or `failure`</td>
+    </tr>
+    <tr>
+        <td><code>description</code><em>(Optional)<em></td>
+        <td>Description that will appear alongside the <code>name</code> of the PR check.</td>
+    </tr>
+</table>
 
 ## `kind: release` - NOT IMPLEMENTED YET
 

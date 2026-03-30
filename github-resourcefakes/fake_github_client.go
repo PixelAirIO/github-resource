@@ -8,15 +8,17 @@ import (
 )
 
 type FakeGithubClient struct {
-	APIEndpointStub        func() string
-	aPIEndpointMutex       sync.RWMutex
-	aPIEndpointArgsForCall []struct {
+	APIEndpointsStub        func() (string, string)
+	aPIEndpointsMutex       sync.RWMutex
+	aPIEndpointsArgsForCall []struct {
 	}
-	aPIEndpointReturns struct {
+	aPIEndpointsReturns struct {
 		result1 string
+		result2 string
 	}
-	aPIEndpointReturnsOnCall map[int]struct {
+	aPIEndpointsReturnsOnCall map[int]struct {
 		result1 string
+		result2 string
 	}
 	AccessTokenStub        func() string
 	accessTokenMutex       sync.RWMutex
@@ -65,61 +67,77 @@ type FakeGithubClient struct {
 		result1 []githubresource.PullRequest
 		result2 error
 	}
+	UpdatePRStatusStub        func(string, string, string) error
+	updatePRStatusMutex       sync.RWMutex
+	updatePRStatusArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+	}
+	updatePRStatusReturns struct {
+		result1 error
+	}
+	updatePRStatusReturnsOnCall map[int]struct {
+		result1 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeGithubClient) APIEndpoint() string {
-	fake.aPIEndpointMutex.Lock()
-	ret, specificReturn := fake.aPIEndpointReturnsOnCall[len(fake.aPIEndpointArgsForCall)]
-	fake.aPIEndpointArgsForCall = append(fake.aPIEndpointArgsForCall, struct {
+func (fake *FakeGithubClient) APIEndpoints() (string, string) {
+	fake.aPIEndpointsMutex.Lock()
+	ret, specificReturn := fake.aPIEndpointsReturnsOnCall[len(fake.aPIEndpointsArgsForCall)]
+	fake.aPIEndpointsArgsForCall = append(fake.aPIEndpointsArgsForCall, struct {
 	}{})
-	stub := fake.APIEndpointStub
-	fakeReturns := fake.aPIEndpointReturns
-	fake.recordInvocation("APIEndpoint", []interface{}{})
-	fake.aPIEndpointMutex.Unlock()
+	stub := fake.APIEndpointsStub
+	fakeReturns := fake.aPIEndpointsReturns
+	fake.recordInvocation("APIEndpoints", []interface{}{})
+	fake.aPIEndpointsMutex.Unlock()
 	if stub != nil {
 		return stub()
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeGithubClient) APIEndpointCallCount() int {
-	fake.aPIEndpointMutex.RLock()
-	defer fake.aPIEndpointMutex.RUnlock()
-	return len(fake.aPIEndpointArgsForCall)
+func (fake *FakeGithubClient) APIEndpointsCallCount() int {
+	fake.aPIEndpointsMutex.RLock()
+	defer fake.aPIEndpointsMutex.RUnlock()
+	return len(fake.aPIEndpointsArgsForCall)
 }
 
-func (fake *FakeGithubClient) APIEndpointCalls(stub func() string) {
-	fake.aPIEndpointMutex.Lock()
-	defer fake.aPIEndpointMutex.Unlock()
-	fake.APIEndpointStub = stub
+func (fake *FakeGithubClient) APIEndpointsCalls(stub func() (string, string)) {
+	fake.aPIEndpointsMutex.Lock()
+	defer fake.aPIEndpointsMutex.Unlock()
+	fake.APIEndpointsStub = stub
 }
 
-func (fake *FakeGithubClient) APIEndpointReturns(result1 string) {
-	fake.aPIEndpointMutex.Lock()
-	defer fake.aPIEndpointMutex.Unlock()
-	fake.APIEndpointStub = nil
-	fake.aPIEndpointReturns = struct {
+func (fake *FakeGithubClient) APIEndpointsReturns(result1 string, result2 string) {
+	fake.aPIEndpointsMutex.Lock()
+	defer fake.aPIEndpointsMutex.Unlock()
+	fake.APIEndpointsStub = nil
+	fake.aPIEndpointsReturns = struct {
 		result1 string
-	}{result1}
+		result2 string
+	}{result1, result2}
 }
 
-func (fake *FakeGithubClient) APIEndpointReturnsOnCall(i int, result1 string) {
-	fake.aPIEndpointMutex.Lock()
-	defer fake.aPIEndpointMutex.Unlock()
-	fake.APIEndpointStub = nil
-	if fake.aPIEndpointReturnsOnCall == nil {
-		fake.aPIEndpointReturnsOnCall = make(map[int]struct {
+func (fake *FakeGithubClient) APIEndpointsReturnsOnCall(i int, result1 string, result2 string) {
+	fake.aPIEndpointsMutex.Lock()
+	defer fake.aPIEndpointsMutex.Unlock()
+	fake.APIEndpointsStub = nil
+	if fake.aPIEndpointsReturnsOnCall == nil {
+		fake.aPIEndpointsReturnsOnCall = make(map[int]struct {
 			result1 string
+			result2 string
 		})
 	}
-	fake.aPIEndpointReturnsOnCall[i] = struct {
+	fake.aPIEndpointsReturnsOnCall[i] = struct {
 		result1 string
-	}{result1}
+		result2 string
+	}{result1, result2}
 }
 
 func (fake *FakeGithubClient) AccessToken() string {
@@ -365,6 +383,69 @@ func (fake *FakeGithubClient) ListPullRequestsReturnsOnCall(i int, result1 []git
 		result1 []githubresource.PullRequest
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *FakeGithubClient) UpdatePRStatus(arg1 string, arg2 string, arg3 string) error {
+	fake.updatePRStatusMutex.Lock()
+	ret, specificReturn := fake.updatePRStatusReturnsOnCall[len(fake.updatePRStatusArgsForCall)]
+	fake.updatePRStatusArgsForCall = append(fake.updatePRStatusArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.UpdatePRStatusStub
+	fakeReturns := fake.updatePRStatusReturns
+	fake.recordInvocation("UpdatePRStatus", []interface{}{arg1, arg2, arg3})
+	fake.updatePRStatusMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeGithubClient) UpdatePRStatusCallCount() int {
+	fake.updatePRStatusMutex.RLock()
+	defer fake.updatePRStatusMutex.RUnlock()
+	return len(fake.updatePRStatusArgsForCall)
+}
+
+func (fake *FakeGithubClient) UpdatePRStatusCalls(stub func(string, string, string) error) {
+	fake.updatePRStatusMutex.Lock()
+	defer fake.updatePRStatusMutex.Unlock()
+	fake.UpdatePRStatusStub = stub
+}
+
+func (fake *FakeGithubClient) UpdatePRStatusArgsForCall(i int) (string, string, string) {
+	fake.updatePRStatusMutex.RLock()
+	defer fake.updatePRStatusMutex.RUnlock()
+	argsForCall := fake.updatePRStatusArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeGithubClient) UpdatePRStatusReturns(result1 error) {
+	fake.updatePRStatusMutex.Lock()
+	defer fake.updatePRStatusMutex.Unlock()
+	fake.UpdatePRStatusStub = nil
+	fake.updatePRStatusReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeGithubClient) UpdatePRStatusReturnsOnCall(i int, result1 error) {
+	fake.updatePRStatusMutex.Lock()
+	defer fake.updatePRStatusMutex.Unlock()
+	fake.UpdatePRStatusStub = nil
+	if fake.updatePRStatusReturnsOnCall == nil {
+		fake.updatePRStatusReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updatePRStatusReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeGithubClient) Invocations() map[string][][]interface{} {
