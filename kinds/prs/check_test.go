@@ -15,8 +15,9 @@ func TestInternalCheckNoPriorVersion(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner: "some-owner",
-				Repo:  "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 			},
 		},
 	}
@@ -39,8 +40,9 @@ func TestInternalCheckMatchesPriorVersion(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner: "some-owner",
-				Repo:  "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 			},
 		},
 		Version: version{
@@ -66,8 +68,9 @@ func TestInternalCheckDoesNotMatchesPriorVersion(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner: "some-owner",
-				Repo:  "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 			},
 		},
 		Version: version{
@@ -95,8 +98,9 @@ func TestExcludingDrafts(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner:         "some-owner",
-				Repo:          "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 				ExcludeDrafts: true,
 			},
 		},
@@ -120,8 +124,9 @@ func TestMatchingTargetBranch(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner:        "some-owner",
-				Repo:         "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 				TargetBranch: "other",
 			},
 		},
@@ -145,8 +150,9 @@ func TestNoMatchingPRsReturnsNoneAsTheVersion(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner: "some-owner",
-				Repo:  "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 			},
 		},
 	}
@@ -164,8 +170,9 @@ func TestNoMatchingPRsReturnsEmptyListWhenPriorVersionIsNone(t *testing.T) {
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
-				Owner: "some-owner",
-				Repo:  "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 			},
 		},
 		Version: version{

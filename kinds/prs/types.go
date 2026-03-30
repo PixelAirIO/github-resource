@@ -18,8 +18,6 @@ type Source struct {
 
 type Config struct {
 	gh.Config
-	Owner         string                `json:"owner"`
-	Repo          string                `json:"repository"`
 	States        []gh.PullRequestState `json:"states,omitempty"`
 	Labels        []string              `json:"labels,omitempty"`
 	TargetBranch  string                `json:"target_branch,omitempty"`
@@ -32,11 +30,7 @@ type version struct {
 }
 
 func validateSource(src *Source) (err error) {
-	if src.Config.Owner == "" {
-		err = errors.Join(errors.New("owner field is required"), err)
-	}
-
-	if src.Config.Repo == "" {
+	if src.Repository == "" {
 		err = errors.Join(errors.New("repository field is required"), err)
 	}
 

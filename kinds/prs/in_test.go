@@ -14,8 +14,9 @@ func TestInReturnsThePRs(t *testing.T) {
 	req := inRequest{
 		Source: Source{
 			Config: Config{
-				Owner: "some-owner",
-				Repo:  "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 			},
 		},
 		Version: version{
@@ -44,8 +45,9 @@ func TestInErrorsWhenPRsDontMatchTheVersion(t *testing.T) {
 	req := inRequest{
 		Source: Source{
 			Config: Config{
-				Owner: "some-owner",
-				Repo:  "some-repo",
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
 			},
 		},
 		Version: version{

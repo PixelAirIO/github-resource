@@ -11,14 +11,14 @@ func TestValidateSourceReturnsErrors(t *testing.T) {
 	assert := require.New(t)
 	src := Source{
 		Config: Config{
-			Owner: "",
-			Repo:  "",
+			Config: gh.Config{
+				Repository: "",
+			},
 		},
 	}
 
 	actualErr := validateSource(&src)
 
-	assert.ErrorContains(actualErr, "owner field is required")
 	assert.ErrorContains(actualErr, "repository field is required")
 	assert.Contains(src.Config.States, gh.PullRequestStateOpen, "sets an empty 'States' to OPEN")
 	assert.Nil(src.Config.Labels, "labels is unmodified")
@@ -28,8 +28,9 @@ func TestValidateSourceReturnsNoErrors(t *testing.T) {
 	assert := require.New(t)
 	src := Source{
 		Config: Config{
-			Owner: "some-owner",
-			Repo:  "some-repo",
+			Config: gh.Config{
+				Repository: "some-owner/some-repo",
+			},
 		},
 	}
 
