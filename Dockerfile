@@ -32,3 +32,5 @@ COPY --from=builder /tests /tests
 RUN set -e; for test in /tests/*.test; do \
     $test; \
     done
+
+FROM resource
