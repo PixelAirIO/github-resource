@@ -17,7 +17,7 @@ type Source struct {
 
 type Config struct {
 	gh.Config
-	Number int `json:"number"`
+	Number *int `json:"number"`
 }
 
 type version struct {
@@ -26,7 +26,7 @@ type version struct {
 }
 
 func validateSource(src *Source) (err error) {
-	if src.Number == 0 {
+	if src.Number == nil {
 		err = errors.Join(errors.New("'number' field is required and should be set to the PR's number"), err)
 	}
 

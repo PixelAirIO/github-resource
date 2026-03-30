@@ -11,13 +11,14 @@ import (
 
 func TestInternalCheckNoPriorVersion(t *testing.T) {
 	assert := require.New(t)
+	n := 60
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
 				Config: gh.Config{
 					Repository: "owner/repo",
 				},
-				Number: 60,
+				Number: &n,
 			},
 		},
 	}
@@ -36,13 +37,14 @@ func TestInternalCheckNoPriorVersion(t *testing.T) {
 
 func TestInternalCheckPriorVersionIsTheSame(t *testing.T) {
 	assert := require.New(t)
+	n := 60
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
 				Config: gh.Config{
 					Repository: "owner/repo",
 				},
-				Number: 60,
+				Number: &n,
 			},
 		},
 		Version: version{
@@ -63,13 +65,14 @@ func TestInternalCheckPriorVersionIsTheSame(t *testing.T) {
 
 func TestInternalCheckTagetBranchChanged(t *testing.T) {
 	assert := require.New(t)
+	n := 60
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
 				Config: gh.Config{
 					Repository: "owner/repo",
 				},
-				Number: 60,
+				Number: &n,
 			},
 		},
 		Version: version{
