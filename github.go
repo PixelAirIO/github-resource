@@ -26,7 +26,15 @@ type GithubClient interface {
 	APIEndpoint() string
 	HostEndpoint() string
 	AccessToken() string
+
+	// Returns pull requests matching the states and labels provided.
+	//
+	// If you want to match against no labels, pass in nil.
 	ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error)
+
+	// Returns the latest commit SHA for a given PR
+	//
+	LatestCommitForPR(int) (string, error)
 }
 
 type githubClient struct {
@@ -105,9 +113,6 @@ type PullRequest struct {
 	TargetBranch string `json:"target_branch"`
 }
 
-// Returns pull requests matching the states and labels provided.
-//
-// If you want to match against no labels, pass in nil.
 func (g *githubClient) ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error) {
 	_ = `# @genqlient
 query getPullRequests(
@@ -163,4 +168,37 @@ query getPullRequests(
 	}
 
 	return prs, nil
+}
+
+func (g *githubClient) LatestCommitForPR(prNumber int) (string, error) {
+	_ = `# @genqlient
+query latestCommitForPr(
+    $owner: String!
+    $name: String!
+    $number: Int!
+) {
+    repository(owner: $owner, name: $name) {
+        pullRequest(number: $number) {
+            commits(last: 1) {
+                nodes {
+                    commit {
+                        oid
+                    }
+                }
+            }
+        }
+    }
+}`
+
+	ctx := context.Background()
+	resp, err := latestCommitForPr(ctx, g.client, g.owner, g.repo, prNumber)
+	if err != nil {
+		return "", err
+	}
+
+	if len(resp.Repository.PullRequest.Commits.Nodes) < 1 {
+		return "", errors.New("no commits found for the given PR")
+	}
+
+	return resp.Repository.PullRequest.Commits.Nodes[0].Commit.Oid, nil
 }

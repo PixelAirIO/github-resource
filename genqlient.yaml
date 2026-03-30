@@ -8,3 +8,5 @@ generated: generated.go
 bindings:
   URI:
     type: string
+  GitObjectID:
+    type: string

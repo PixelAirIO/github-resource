@@ -50,6 +50,22 @@ func (v *__getPullRequestsInput) GetLabels() []string { return v.Labels }
 // GetEndCursor returns __getPullRequestsInput.EndCursor, and is useful for accessing the field via an interface.
 func (v *__getPullRequestsInput) GetEndCursor() string { return v.EndCursor }
 
+// __latestCommitForPrInput is used internally by genqlient
+type __latestCommitForPrInput struct {
+	Owner  string `json:"owner"`
+	Name   string `json:"name"`
+	Number int    `json:"number"`
+}
+
+// GetOwner returns __latestCommitForPrInput.Owner, and is useful for accessing the field via an interface.
+func (v *__latestCommitForPrInput) GetOwner() string { return v.Owner }
+
+// GetName returns __latestCommitForPrInput.Name, and is useful for accessing the field via an interface.
+func (v *__latestCommitForPrInput) GetName() string { return v.Name }
+
+// GetNumber returns __latestCommitForPrInput.Number, and is useful for accessing the field via an interface.
+func (v *__latestCommitForPrInput) GetNumber() int { return v.Number }
+
 // getPullRequestsRepository includes the requested fields of the GraphQL type Repository.
 // The GraphQL type's documentation follows.
 //
@@ -150,6 +166,85 @@ type getPullRequestsResponse struct {
 // GetRepository returns getPullRequestsResponse.Repository, and is useful for accessing the field via an interface.
 func (v *getPullRequestsResponse) GetRepository() getPullRequestsRepository { return v.Repository }
 
+// latestCommitForPrRepository includes the requested fields of the GraphQL type Repository.
+// The GraphQL type's documentation follows.
+//
+// A repository contains the content for a project.
+type latestCommitForPrRepository struct {
+	// Returns a single pull request from the current repository by number.
+	PullRequest latestCommitForPrRepositoryPullRequest `json:"pullRequest"`
+}
+
+// GetPullRequest returns latestCommitForPrRepository.PullRequest, and is useful for accessing the field via an interface.
+func (v *latestCommitForPrRepository) GetPullRequest() latestCommitForPrRepositoryPullRequest {
+	return v.PullRequest
+}
+
+// latestCommitForPrRepositoryPullRequest includes the requested fields of the GraphQL type PullRequest.
+// The GraphQL type's documentation follows.
+//
+// A repository pull request.
+type latestCommitForPrRepositoryPullRequest struct {
+	// A list of commits present in this pull request's head branch not present in the base branch.
+	Commits latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnection `json:"commits"`
+}
+
+// GetCommits returns latestCommitForPrRepositoryPullRequest.Commits, and is useful for accessing the field via an interface.
+func (v *latestCommitForPrRepositoryPullRequest) GetCommits() latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnection {
+	return v.Commits
+}
+
+// latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnection includes the requested fields of the GraphQL type PullRequestCommitConnection.
+// The GraphQL type's documentation follows.
+//
+// The connection type for PullRequestCommit.
+type latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnection struct {
+	// A list of nodes.
+	Nodes []latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit `json:"nodes"`
+}
+
+// GetNodes returns latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnection) GetNodes() []latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit {
+	return v.Nodes
+}
+
+// latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit includes the requested fields of the GraphQL type PullRequestCommit.
+// The GraphQL type's documentation follows.
+//
+// Represents a Git commit part of a pull request.
+type latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit struct {
+	// The Git commit object
+	Commit latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit `json:"commit"`
+}
+
+// GetCommit returns latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit.Commit, and is useful for accessing the field via an interface.
+func (v *latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit) GetCommit() latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit {
+	return v.Commit
+}
+
+// latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit includes the requested fields of the GraphQL type Commit.
+// The GraphQL type's documentation follows.
+//
+// Represents a Git commit.
+type latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit struct {
+	// The Git object ID
+	Oid string `json:"oid"`
+}
+
+// GetOid returns latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit.Oid, and is useful for accessing the field via an interface.
+func (v *latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit) GetOid() string {
+	return v.Oid
+}
+
+// latestCommitForPrResponse is returned by latestCommitForPr on success.
+type latestCommitForPrResponse struct {
+	// Lookup a given repository by the owner and repository name.
+	Repository latestCommitForPrRepository `json:"repository"`
+}
+
+// GetRepository returns latestCommitForPrResponse.Repository, and is useful for accessing the field via an interface.
+func (v *latestCommitForPrResponse) GetRepository() latestCommitForPrRepository { return v.Repository }
+
 // The query executed by getPullRequests.
 const getPullRequests_Operation = `
 query getPullRequests ($owner: String!, $name: String!, $states: [PullRequestState!], $labels: [String!], $endCursor: String) {
@@ -192,6 +287,52 @@ func getPullRequests(
 	}
 
 	data_ = &getPullRequestsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by latestCommitForPr.
+const latestCommitForPr_Operation = `
+query latestCommitForPr ($owner: String!, $name: String!, $number: Int!) {
+	repository(owner: $owner, name: $name) {
+		pullRequest(number: $number) {
+			commits(last: 1) {
+				nodes {
+					commit {
+						oid
+					}
+				}
+			}
+		}
+	}
+}
+`
+
+func latestCommitForPr(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	owner string,
+	name string,
+	number int,
+) (data_ *latestCommitForPrResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "latestCommitForPr",
+		Query:  latestCommitForPr_Operation,
+		Variables: &__latestCommitForPrInput{
+			Owner:  owner,
+			Name:   name,
+			Number: number,
+		},
+	}
+
+	data_ = &latestCommitForPrResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
