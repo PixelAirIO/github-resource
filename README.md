@@ -102,14 +102,6 @@ PR's status, labels, draft status, and target branch the PR wants to merge into.
         <th>Description</th>
     </tr>
     <tr>
-        <td><code>owner</code><em>(Required)<em></td>
-        <td>The username or organization that owns the repository.</td>
-    </tr>
-    <tr>
-        <td><code>repository</code><em>(Required)<em></td>
-        <td>The repository to track PR's from.</td>
-    </tr>
-    <tr>
         <td>
             <code>states</code><em>(Optional)<em>
             <br>
