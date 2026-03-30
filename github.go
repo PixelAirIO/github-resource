@@ -179,6 +179,8 @@ query latestCommitForPr(
 ) {
     repository(owner: $owner, name: $name) {
         pullRequest(number: $number) {
+            baseRefName
+            permalink
             commits(last: 1) {
                 nodes {
                     commit {
