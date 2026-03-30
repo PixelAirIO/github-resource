@@ -1,7 +1,6 @@
 package prs
 
 import (
-	"errors"
 	"time"
 
 	gh "github.com/PixelAirIO/github-resource"
@@ -30,10 +29,6 @@ type version struct {
 }
 
 func validateSource(src *Source) (err error) {
-	if src.Repository == "" {
-		err = errors.Join(errors.New("repository field is required"), err)
-	}
-
 	if len(src.Config.States) == 0 {
 		src.Config.States = []gh.PullRequestState{gh.PullRequestStateOpen}
 	}
