@@ -187,17 +187,12 @@ func (v *latestCommitForPrRepository) GetPullRequest() latestCommitForPrReposito
 type latestCommitForPrRepositoryPullRequest struct {
 	// Identifies the name of the base Ref associated with the pull request, even if the ref has been deleted.
 	BaseRefName string `json:"baseRefName"`
-	// The permalink to the pull request.
-	Permalink string `json:"permalink"`
 	// A list of commits present in this pull request's head branch not present in the base branch.
 	Commits latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnection `json:"commits"`
 }
 
 // GetBaseRefName returns latestCommitForPrRepositoryPullRequest.BaseRefName, and is useful for accessing the field via an interface.
 func (v *latestCommitForPrRepositoryPullRequest) GetBaseRefName() string { return v.BaseRefName }
-
-// GetPermalink returns latestCommitForPrRepositoryPullRequest.Permalink, and is useful for accessing the field via an interface.
-func (v *latestCommitForPrRepositoryPullRequest) GetPermalink() string { return v.Permalink }
 
 // GetCommits returns latestCommitForPrRepositoryPullRequest.Commits, and is useful for accessing the field via an interface.
 func (v *latestCommitForPrRepositoryPullRequest) GetCommits() latestCommitForPrRepositoryPullRequestCommitsPullRequestCommitConnection {
@@ -314,7 +309,6 @@ query latestCommitForPr ($owner: String!, $name: String!, $number: Int!) {
 	repository(owner: $owner, name: $name) {
 		pullRequest(number: $number) {
 			baseRefName
-			permalink
 			commits(last: 1) {
 				nodes {
 					commit {

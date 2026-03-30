@@ -34,7 +34,7 @@ type GithubClient interface {
 
 	// Returns the latest commit SHA for a given PR
 	//
-	LatestCommitForPR(int) (string, error)
+	LatestCommitForPR(int) (PullRequestCommit, error)
 }
 
 type githubClient struct {
@@ -170,7 +170,12 @@ query getPullRequests(
 	return prs, nil
 }
 
-func (g *githubClient) LatestCommitForPR(prNumber int) (string, error) {
+type PullRequestCommit struct {
+	LatestSHA    string
+	TargetBranch string
+}
+
+func (g *githubClient) LatestCommitForPR(prNumber int) (PullRequestCommit, error) {
 	_ = `# @genqlient
 query latestCommitForPr(
     $owner: String!
@@ -180,7 +185,6 @@ query latestCommitForPr(
     repository(owner: $owner, name: $name) {
         pullRequest(number: $number) {
             baseRefName
-            permalink
             commits(last: 1) {
                 nodes {
                     commit {
@@ -195,12 +199,15 @@ query latestCommitForPr(
 	ctx := context.Background()
 	resp, err := latestCommitForPr(ctx, g.client, g.owner, g.repo, prNumber)
 	if err != nil {
-		return "", err
+		return PullRequestCommit{}, err
 	}
 
 	if len(resp.Repository.PullRequest.Commits.Nodes) < 1 {
-		return "", errors.New("no commits found for the given PR")
+		return PullRequestCommit{}, errors.New("no commits found for the given PR")
 	}
 
-	return resp.Repository.PullRequest.Commits.Nodes[0].Commit.Oid, nil
+	return PullRequestCommit{
+		LatestSHA:    resp.Repository.PullRequest.Commits.Nodes[0].Commit.Oid,
+		TargetBranch: resp.Repository.PullRequest.BaseRefName,
+	}, nil
 }
