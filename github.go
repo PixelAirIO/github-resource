@@ -152,7 +152,7 @@ query getPullRequests(
 		for _, v := range resp.Repository.PullRequests.Nodes {
 			prs = append(prs, PullRequest{
 				Number:       strconv.Itoa(v.Number),
-				Url:          v.Permalink.String(),
+				Url:          v.Permalink,
 				IsDraft:      v.IsDraft,
 				TargetBranch: v.BaseRefName,
 			})

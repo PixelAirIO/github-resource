@@ -4,7 +4,6 @@ package githubresource
 
 import (
 	"context"
-	"net/url"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -96,7 +95,7 @@ type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest 
 	// Identifies if the pull request is a draft.
 	IsDraft bool `json:"isDraft"`
 	// The permalink to the pull request.
-	Permalink url.URL `json:"permalink"`
+	Permalink string `json:"permalink"`
 	// Identifies the name of the base Ref associated with the pull request, even if the ref has been deleted.
 	BaseRefName string `json:"baseRefName"`
 }
@@ -112,7 +111,7 @@ func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequ
 }
 
 // GetPermalink returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Permalink, and is useful for accessing the field via an interface.
-func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetPermalink() url.URL {
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetPermalink() string {
 	return v.Permalink
 }
 
