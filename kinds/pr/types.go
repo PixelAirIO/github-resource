@@ -21,8 +21,7 @@ type Config struct {
 }
 
 type version struct {
-	SHA          string `json:"sha"`
-	TargetBranch string `json:"target_branch"`
+	SHA string `json:"sha"`
 }
 
 func validateSource(src *Source) (err error) {

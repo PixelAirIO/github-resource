@@ -40,17 +40,17 @@ type FakeGithubClient struct {
 	hostEndpointReturnsOnCall map[int]struct {
 		result1 string
 	}
-	LatestCommitForPRStub        func(int) (githubresource.PullRequestCommit, error)
+	LatestCommitForPRStub        func(int) (string, error)
 	latestCommitForPRMutex       sync.RWMutex
 	latestCommitForPRArgsForCall []struct {
 		arg1 int
 	}
 	latestCommitForPRReturns struct {
-		result1 githubresource.PullRequestCommit
+		result1 string
 		result2 error
 	}
 	latestCommitForPRReturnsOnCall map[int]struct {
-		result1 githubresource.PullRequestCommit
+		result1 string
 		result2 error
 	}
 	ListPullRequestsStub        func([]githubresource.PullRequestState, []string) ([]githubresource.PullRequest, error)
@@ -246,7 +246,7 @@ func (fake *FakeGithubClient) HostEndpointReturnsOnCall(i int, result1 string) {
 	}{result1}
 }
 
-func (fake *FakeGithubClient) LatestCommitForPR(arg1 int) (githubresource.PullRequestCommit, error) {
+func (fake *FakeGithubClient) LatestCommitForPR(arg1 int) (string, error) {
 	fake.latestCommitForPRMutex.Lock()
 	ret, specificReturn := fake.latestCommitForPRReturnsOnCall[len(fake.latestCommitForPRArgsForCall)]
 	fake.latestCommitForPRArgsForCall = append(fake.latestCommitForPRArgsForCall, struct {
@@ -271,7 +271,7 @@ func (fake *FakeGithubClient) LatestCommitForPRCallCount() int {
 	return len(fake.latestCommitForPRArgsForCall)
 }
 
-func (fake *FakeGithubClient) LatestCommitForPRCalls(stub func(int) (githubresource.PullRequestCommit, error)) {
+func (fake *FakeGithubClient) LatestCommitForPRCalls(stub func(int) (string, error)) {
 	fake.latestCommitForPRMutex.Lock()
 	defer fake.latestCommitForPRMutex.Unlock()
 	fake.LatestCommitForPRStub = stub
@@ -284,28 +284,28 @@ func (fake *FakeGithubClient) LatestCommitForPRArgsForCall(i int) int {
 	return argsForCall.arg1
 }
 
-func (fake *FakeGithubClient) LatestCommitForPRReturns(result1 githubresource.PullRequestCommit, result2 error) {
+func (fake *FakeGithubClient) LatestCommitForPRReturns(result1 string, result2 error) {
 	fake.latestCommitForPRMutex.Lock()
 	defer fake.latestCommitForPRMutex.Unlock()
 	fake.LatestCommitForPRStub = nil
 	fake.latestCommitForPRReturns = struct {
-		result1 githubresource.PullRequestCommit
+		result1 string
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeGithubClient) LatestCommitForPRReturnsOnCall(i int, result1 githubresource.PullRequestCommit, result2 error) {
+func (fake *FakeGithubClient) LatestCommitForPRReturnsOnCall(i int, result1 string, result2 error) {
 	fake.latestCommitForPRMutex.Lock()
 	defer fake.latestCommitForPRMutex.Unlock()
 	fake.LatestCommitForPRStub = nil
 	if fake.latestCommitForPRReturnsOnCall == nil {
 		fake.latestCommitForPRReturnsOnCall = make(map[int]struct {
-			result1 githubresource.PullRequestCommit
+			result1 string
 			result2 error
 		})
 	}
 	fake.latestCommitForPRReturnsOnCall[i] = struct {
-		result1 githubresource.PullRequestCommit
+		result1 string
 		result2 error
 	}{result1, result2}
 }

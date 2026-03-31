@@ -187,7 +187,7 @@ The `put` step has the following params:
     </tr>
     <tr>
         <td>
-            <code>commit_sha</code><em>(Required)<em>
+            <code>ref</code><em>(Required)<em>
         </td>
         <td>The commit SHA that the PR check will be matched with on GitHub.</td>
     </tr>

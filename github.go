@@ -40,7 +40,7 @@ type GithubClient interface {
 	ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error)
 
 	// Returns the latest commit SHA for a given PR
-	LatestCommitForPR(int) (PullRequestCommit, error)
+	LatestCommitForPR(int) (string, error)
 
 	// Updates the status for a given ref
 	UpdatePRStatus(ref string, name string, status string) error
@@ -199,12 +199,7 @@ query getPullRequests(
 	return prs, nil
 }
 
-type PullRequestCommit struct {
-	LatestSHA    string
-	TargetBranch string
-}
-
-func (g *githubClient) LatestCommitForPR(prNumber int) (PullRequestCommit, error) {
+func (g *githubClient) LatestCommitForPR(prNumber int) (string, error) {
 	_ = `# @genqlient
 query latestCommitForPr(
     $owner: String!
@@ -213,7 +208,6 @@ query latestCommitForPr(
 ) {
     repository(owner: $owner, name: $name) {
         pullRequest(number: $number) {
-            baseRefName
             commits(last: 1) {
                 nodes {
                     commit {
@@ -228,17 +222,14 @@ query latestCommitForPr(
 	ctx := context.Background()
 	resp, err := latestCommitForPr(ctx, g.gqlClient, g.owner, g.repo, prNumber)
 	if err != nil {
-		return PullRequestCommit{}, err
+		return "", err
 	}
 
 	if len(resp.Repository.PullRequest.Commits.Nodes) < 1 {
-		return PullRequestCommit{}, errors.New("no commits found for the given PR")
+		return "", errors.New("no commits found for the given PR")
 	}
 
-	return PullRequestCommit{
-		LatestSHA:    resp.Repository.PullRequest.Commits.Nodes[0].Commit.Oid,
-		TargetBranch: resp.Repository.PullRequest.BaseRefName,
-	}, nil
+	return resp.Repository.PullRequest.Commits.Nodes[0].Commit.Oid, nil
 }
 
 func (g *githubClient) UpdatePRStatus(ref string, name string, status string) error {
