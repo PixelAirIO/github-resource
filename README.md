@@ -58,12 +58,9 @@ example/my-app`.
 
 The endpoints used can be configured by setting the following:
 
-- `api_endpoint_v4` - Defaults to `https://api.github.com/graphql`
-- `api_endpoint_v3` - Defaults to `https://api.github.com`
-- `host_endpoint` - Defaults to `https://github.com`
-fields. `api_endpoint` will default to `https://api.github.com/graphql`.
-`host_endpoint` will default to `https://github.com` and is where repositories
-are hosted.
+- `api_endpoint_v4` - Defaults to the GraphQL endpoint `https://api.github.com/graphql`
+- `api_endpoint_v3` - Defaults to the REST endpoint `https://api.github.com`
+- `host_endpoint` - Defaults to `https://github.com`, where repositories are hosted
 
 We try to mostly use the GraphQL API because you're less likely to hit API rate
 limits compared to the REST API.
