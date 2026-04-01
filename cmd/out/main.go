@@ -10,7 +10,9 @@ import (
 
 func init() {
 	log.SetFlags(0)
-	log.Println("Resource maintained by Pixel Air IO (https://github.com/PixelAirIO)")
+	log.Println(
+		"Resource type maintained by Pixel Air IO (https://github.com/PixelAirIO)",
+		"------")
 }
 
 func main() {
