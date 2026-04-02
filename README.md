@@ -152,7 +152,7 @@ In the case when there are no matching PRs, a special `none` version will be
 generated. The `get` step will populate `prs.json` with an empty array that can
 be passed to the `across` step.
 
-## `kind: pr` - NOT IMPLEMENTED YET
+## `kind: pr`
 
 Allows you to interact with a single Pull Request. Will track commits pushed to
 the pull request and allow you to update the status checks of the PR and leave
@@ -205,7 +205,7 @@ comments.
 </table>
 
 The `get` checks out a commit from the Pull Request and locally merges them into
-the target branch.
+the target branch (unless `merge_strategy: checkout` is used).
 
 The `put` step can set the status on a commit of the Pull Request. One instance
 of the resource can be used to set multiple statuses on the PR by calling `put`
