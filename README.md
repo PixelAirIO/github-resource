@@ -166,6 +166,38 @@ comments.
         </td>
         <td>The PR number that the resource will interact with.</td>
     </tr>
+    <tr>
+        <td>
+            <code>merge_strategy</code><em>(Optional)<em>
+            <br>
+            <em>Defaults to <code>merge</code></em>
+        </td>
+        <td>Dictates how the PR will be checked out. Can be one of:
+            <ul>
+                <li><code>merge</code> - Will checkout the branch the PR wants to merge into and locally merge the PR into that branch.</li>
+                <li><code>rebase</code> - Will checkout the branch the PR wants to merge into and locally rebase the PR on the latest commit of that branch.</li>
+                <li><code>checkout</code> - Only checks out the PR branch.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <code>depth</code><em>(Optional)<em>
+        </td>
+        <td>Shallow clone the repository using git's <code>--depth</code> flag</td>
+    </tr>
+    <tr>
+        <td>
+            <code>submodules</code><em>(Optional)<em>
+        </td>
+        <td>Set to <code>true</code> if you want submodules to be cloned.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>fetch_tags</code><em>(Optional)<em>
+        </td>
+        <td>Set to <code>true</code> if you want tags to be fetched.</td>
+    </tr>
 </table>
 
 The `get` checks out a commit from the Pull Request and locally merges them into
