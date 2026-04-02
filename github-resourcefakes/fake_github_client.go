@@ -159,12 +159,13 @@ type FakeGithubClient struct {
 	rebasePrReturnsOnCall map[int]struct {
 		result1 error
 	}
-	UpdatePRStatusStub        func(string, string, string) error
+	UpdatePRStatusStub        func(string, string, string, string) error
 	updatePRStatusMutex       sync.RWMutex
 	updatePRStatusArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
+		arg4 string
 	}
 	updatePRStatusReturns struct {
 		result1 error
@@ -920,20 +921,21 @@ func (fake *FakeGithubClient) RebasePrReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeGithubClient) UpdatePRStatus(arg1 string, arg2 string, arg3 string) error {
+func (fake *FakeGithubClient) UpdatePRStatus(arg1 string, arg2 string, arg3 string, arg4 string) error {
 	fake.updatePRStatusMutex.Lock()
 	ret, specificReturn := fake.updatePRStatusReturnsOnCall[len(fake.updatePRStatusArgsForCall)]
 	fake.updatePRStatusArgsForCall = append(fake.updatePRStatusArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
-	}{arg1, arg2, arg3})
+		arg4 string
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.UpdatePRStatusStub
 	fakeReturns := fake.updatePRStatusReturns
-	fake.recordInvocation("UpdatePRStatus", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("UpdatePRStatus", []interface{}{arg1, arg2, arg3, arg4})
 	fake.updatePRStatusMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -947,17 +949,17 @@ func (fake *FakeGithubClient) UpdatePRStatusCallCount() int {
 	return len(fake.updatePRStatusArgsForCall)
 }
 
-func (fake *FakeGithubClient) UpdatePRStatusCalls(stub func(string, string, string) error) {
+func (fake *FakeGithubClient) UpdatePRStatusCalls(stub func(string, string, string, string) error) {
 	fake.updatePRStatusMutex.Lock()
 	defer fake.updatePRStatusMutex.Unlock()
 	fake.UpdatePRStatusStub = stub
 }
 
-func (fake *FakeGithubClient) UpdatePRStatusArgsForCall(i int) (string, string, string) {
+func (fake *FakeGithubClient) UpdatePRStatusArgsForCall(i int) (string, string, string, string) {
 	fake.updatePRStatusMutex.RLock()
 	defer fake.updatePRStatusMutex.RUnlock()
 	argsForCall := fake.updatePRStatusArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *FakeGithubClient) UpdatePRStatusReturns(result1 error) {

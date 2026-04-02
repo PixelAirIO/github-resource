@@ -52,7 +52,7 @@ type GithubClient interface {
 	GetPRInfo(int) (PullRequest, error)
 
 	// Updates the status for a given ref
-	UpdatePRStatus(ref string, name string, status string) error
+	UpdatePRStatus(ref, name, status, descr string) error
 
 	// Configures the repo, initializing at the specified branch
 	InitRepo(uri, branch string) error
@@ -332,16 +332,17 @@ query getPullRequest(
 	}, nil
 }
 
-func (g *githubClient) UpdatePRStatus(ref string, name string, status string) error {
+func (g *githubClient) UpdatePRStatus(ref, name, status, descr string) error {
 	targetUrl := os.Getenv("BUILD_URL_SHORT")
 	if targetUrl == "" {
 		targetUrl = fmt.Sprintf("%s/builds/%s", os.Getenv("ATC_EXTERNAL_URL"), os.Getenv("BUILD_ID"))
 	}
 
 	_, _, err := g.restClient.Repositories.CreateStatus(context.TODO(), g.owner, g.repo, ref, github.RepoStatus{
-		State:     &status,
-		Context:   &name,
-		TargetURL: &targetUrl,
+		State:       &status,
+		Context:     &name,
+		Description: &descr,
+		TargetURL:   &targetUrl,
 	})
 
 	return err
