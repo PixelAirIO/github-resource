@@ -62,7 +62,7 @@ func (*Pr) In(stdin []byte, dest string) {
 }
 
 func in(req inRequest, dest string, ghc gh.GithubClient) error {
-	pr, err := ghc.GetPRInfo(req.Source.Number)
+	pr, err := ghc.GetPRInfo(int(req.Source.Number))
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,10 @@
 package pr
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
 
 	gh "github.com/PixelAirIO/github-resource"
 )
@@ -17,7 +20,7 @@ type Source struct {
 
 type Config struct {
 	gh.Config
-	Number        int    `json:"number"`
+	Number        StrInt `json:"number"`
 	Depth         int    `json:"depth"`
 	Submodules    bool   `json:"submodules"`
 	FetchTags     bool   `json:"fetch_tags"`
@@ -34,4 +37,27 @@ func validateSource(src *Source) (err error) {
 	}
 
 	return err
+}
+
+// StrInt is an int that can be unmarshaled from a JSON int or string.
+type StrInt int
+
+func (fi *StrInt) UnmarshalJSON(b []byte) error {
+	var n int
+	if err := json.Unmarshal(b, &n); err == nil {
+		*fi = StrInt(n)
+		return nil
+	}
+
+	var s string
+	if err := json.Unmarshal(b, &s); err == nil {
+		n, err := strconv.Atoi(s)
+		if err != nil {
+			return fmt.Errorf("cannot convert %q to int: %w", s, err)
+		}
+		*fi = StrInt(n)
+		return nil
+	}
+
+	return fmt.Errorf("cannot unmarshal %s into int", string(b))
 }

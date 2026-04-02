@@ -116,7 +116,7 @@ PR's status, labels, draft status, and target branch the PR wants to merge into.
     </tr>
     <tr>
         <td><code>labels</code><em>(Optional)<em></td>
-        <td>A list of label(s) to filter PR's by. A PR must have all listed labels to be matched.</td>
+        <td>A list of label(s) to filter PR's by. A PR containing any of the labels will be matched.</td>
     </tr>
     <tr>
         <td><code>target_branch</code><em>(Optional)<em></td>
