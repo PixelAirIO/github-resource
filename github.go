@@ -4,11 +4,13 @@ package githubresource
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -19,11 +21,13 @@ import (
 //go:generate go tool counterfeiter -generate
 
 type Config struct {
-	AccessToken   string `json:"access_token"`
-	APIEndpointV4 string `json:"api_endpoint_v4"`
-	APIEndpointV3 string `json:"api_endpoint_v3"`
-	HostEndpoint  string `json:"host_endpoint"`
-	Repository    string `json:"repository"`
+	AccessToken         string `json:"access_token"`
+	APIEndpointV4       string `json:"api_endpoint_v4"`
+	APIEndpointV3       string `json:"api_endpoint_v3"`
+	HostEndpoint        string `json:"host_endpoint"`
+	Repository          string `json:"repository"`
+	DisableGitLFS       bool   `json:"disable_git_lfs"`
+	SkipSSLVerification bool   `json:"skip_ssl_verification"`
 }
 
 //counterfeiter:generate . GithubClient
@@ -37,13 +41,31 @@ type GithubClient interface {
 	// Returns pull requests matching the states and labels provided.
 	//
 	// If you want to match against no labels, pass in nil.
+	// PullRequest.FilesChanged is NOT populated.
 	ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error)
 
 	// Returns the latest commit SHA for a given PR
 	LatestCommitForPR(int) (string, error)
 
+	// Returns information about the Pull Request. Only the first 100 files are
+	// listed.
+	GetPRInfo(int) (PullRequest, error)
+
 	// Updates the status for a given ref
 	UpdatePRStatus(ref string, name string, status string) error
+
+	// Configures the repo, initializing at the specified branch
+	InitRepo(uri, branch string) error
+
+	// Does `git fetch` to download the PR's data
+	FetchPr(uri, number string, depth int, fetchTags, submodules bool) error
+
+	// Pulls a known branch from origin
+	PullBranch(branch string, depth int, fetchTags, submodules bool) error
+
+	CheckoutPr(prBranch, ref string, submodules bool) error
+	RebasePr(baseRef, prRef string, submodules bool) error
+	MergePr(prRef string, submodules bool) error
 }
 
 type githubClient struct {
@@ -52,6 +74,7 @@ type githubClient struct {
 	owner      string
 	repo       string
 	config     Config
+	cliEnv     []string
 }
 
 var _ GithubClient = (*githubClient)(nil)
@@ -73,6 +96,11 @@ const DefaultRestEndpoint = "https://api.github.com/"
 const DefaultHostEndpoint = "https://github.com"
 
 func NewGithubClient(cfg Config) (GithubClient, error) {
+	_, err := exec.LookPath("git")
+	if err != nil {
+		return nil, fmt.Errorf("error checking for the git cli: %w", err)
+	}
+
 	if cfg.APIEndpointV4 == "" {
 		cfg.APIEndpointV4 = DefaultGraphqlEndpoint
 	}
@@ -94,14 +122,30 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		return nil, errors.New("unexpected format for 'repository'. Expected format is 'OWNER/REPO'.")
 	}
 
+	var httpClient *http.Client
+	var transport http.RoundTripper
+	if cfg.SkipSSLVerification {
+		transport = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		}
+		httpClient = &http.Client{
+			Transport: transport,
+		}
+	} else {
+		httpClient = http.DefaultClient
+		transport = http.DefaultTransport
+	}
+
 	gqlClient := graphql.NewClient(cfg.APIEndpointV4, &http.Client{
 		Transport: &authedTransport{
 			accessToken: cfg.AccessToken,
-			transport:   http.DefaultTransport,
+			transport:   transport,
 		},
 	})
 
-	ghc := github.NewClient(nil)
+	ghc := github.NewClient(httpClient)
 	if cfg.AccessToken != "" {
 		ghc = ghc.WithAuthToken(cfg.AccessToken)
 	}
@@ -120,6 +164,12 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		owner:      repository[0],
 		repo:       repository[1],
 		config:     cfg,
+		cliEnv: []string{
+			fmt.Sprintf("%s=%s", "X_OAUTH_BASIC_TOKEN", cfg.AccessToken),
+			"GIT_ASKPASS=/usr/local/bin/gitpass.sh",
+			"GIT_TERMINAL_PROMPT=0",
+			fmt.Sprintf("%s=%t", "GIT_LFS_SKIP_SMUDGE", cfg.DisableGitLFS),
+		},
 	}, nil
 }
 
@@ -136,10 +186,13 @@ func (g *githubClient) AccessToken() string {
 }
 
 type PullRequest struct {
-	Number       string `json:"number"`
-	Url          string `json:"url"`
-	IsDraft      bool   `json:"-"`
-	TargetBranch string `json:"target_branch"`
+	Number        string   `json:"number"`
+	Url           string   `json:"url"`
+	IsDraft       bool     `json:"-"`
+	TargetBranch  string   `json:"target_branch"`
+	FilesChanged  []string `json:"changed_files"`
+	ParentRepoUrl string   `json:"parent_url"`
+	Branch        string   `json:"branch"`
 }
 
 func (g *githubClient) ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error) {
@@ -164,6 +217,7 @@ query getPullRequests(
                 isDraft
                 permalink
                 baseRefName
+                headRefName
             }
             pageInfo {
 	            endCursor
@@ -189,6 +243,7 @@ query getPullRequests(
 				Url:          v.Permalink,
 				IsDraft:      v.IsDraft,
 				TargetBranch: v.BaseRefName,
+				Branch:       v.HeadRefName,
 			})
 		}
 
@@ -232,6 +287,51 @@ query latestCommitForPr(
 	return resp.Repository.PullRequest.Commits.Nodes[0].Commit.Oid, nil
 }
 
+func (g *githubClient) GetPRInfo(prNumber int) (PullRequest, error) {
+	_ = `# @genqlient
+query getPullRequest(
+   $owner: String!
+   $name: String!
+   $number: Int!
+) {
+    repository(owner: $owner, name: $name) {
+        url
+        pullRequest(number: $number) {
+            baseRefName
+            headRefName
+            isDraft
+            permalink
+            files(first: 100) {
+                nodes {
+                    path
+                }
+            }
+        }
+    }
+}
+`
+	ctx := context.Background()
+	resp, err := getPullRequest(ctx, g.gqlClient, g.owner, g.repo, prNumber)
+	if err != nil {
+		return PullRequest{}, err
+	}
+
+	files := []string{}
+	for _, p := range resp.Repository.PullRequest.Files.Nodes {
+		files = append(files, p.Path)
+	}
+
+	return PullRequest{
+		Number:        strconv.Itoa(prNumber),
+		Url:           resp.Repository.PullRequest.Permalink,
+		IsDraft:       resp.Repository.PullRequest.IsDraft,
+		TargetBranch:  resp.Repository.PullRequest.BaseRefName,
+		FilesChanged:  files,
+		ParentRepoUrl: resp.Repository.Url,
+		Branch:        resp.Repository.PullRequest.HeadRefName,
+	}, nil
+}
+
 func (g *githubClient) UpdatePRStatus(ref string, name string, status string) error {
 	targetUrl := os.Getenv("BUILD_URL_SHORT")
 	if targetUrl == "" {
@@ -245,4 +345,167 @@ func (g *githubClient) UpdatePRStatus(ref string, name string, status string) er
 	})
 
 	return err
+}
+
+func (g *githubClient) git(args ...string) *exec.Cmd {
+	cmd := exec.Command("git", args...)
+	cmd.Env = append(cmd.Env, os.Environ()...)
+	cmd.Env = append(cmd.Env, g.cliEnv...)
+	return cmd
+}
+
+func (g *githubClient) error(err error) error {
+	var e *exec.ExitError
+	if errors.As(err, &e) {
+		return errors.New(string(e.Stderr))
+	}
+	return err
+}
+
+func (g *githubClient) endpoint(uri string) (string, error) {
+	endpoint, err := url.Parse(uri)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse uri: %w", err)
+	}
+	endpoint.User = url.UserPassword("x-oauth-basic", g.config.AccessToken)
+	return endpoint.String(), nil
+}
+
+func (g *githubClient) InitRepo(uri, branch string) error {
+	err := g.git("init", "--initial-branch", branch).Run()
+	if err != nil {
+		return fmt.Errorf("git init error: %w", g.error(err))
+	}
+
+	err = g.git("config", "user.name", "concourse-ci").Run()
+	if err != nil {
+		return fmt.Errorf("git config user.name error: %w", g.error(err))
+	}
+
+	err = g.git("config", "user.email", "concourse@local").Run()
+	if err != nil {
+		return fmt.Errorf("git config user.email error: %w", g.error(err))
+	}
+
+	err = g.git("config", "url.https://x-oauth-basic@github.com/.insteadOf", "git@github.com:").Run()
+	if err != nil {
+		return fmt.Errorf("git config url-1 error: %w", g.error(err))
+	}
+
+	err = g.git("config", "url.https://.insteadOf", "git://").Run()
+	if err != nil {
+		return fmt.Errorf("git config url-2 error: %w", g.error(err))
+	}
+
+	remoteUri, err := g.endpoint(uri)
+	if err != nil {
+		return err
+	}
+
+	err = g.git("remote", "add", "origin", remoteUri).Run()
+	if err != nil {
+		return fmt.Errorf("error setting origin: %w", g.error(err))
+	}
+
+	return nil
+}
+
+func (g *githubClient) PullBranch(branch string, depth int, fetchTags, submodules bool) error {
+	pullArgs := []string{"pull", "origin", branch}
+	if depth > 0 {
+		pullArgs = append(pullArgs, "--depth", strconv.Itoa(depth))
+	}
+	if fetchTags {
+		pullArgs = append(pullArgs, "--tags")
+	}
+	if submodules {
+		pullArgs = append(pullArgs, "--recurse-submodules")
+	}
+
+	err := g.git(pullArgs...).Run()
+	if err != nil {
+		return fmt.Errorf("error pulling origin: %w", g.error(err))
+	}
+
+	if submodules {
+		err = g.git("submodule", "update", "--init", "--recursive").Run()
+		if err != nil {
+			return fmt.Errorf("error updating submodules: %w", g.error(err))
+		}
+	}
+
+	return nil
+}
+
+func (g *githubClient) FetchPr(uri, number string, depth int, fetchTags, submodules bool) error {
+	remoteUri, err := g.endpoint(uri)
+	if err != nil {
+		return err
+	}
+
+	args := []string{"fetch", remoteUri, fmt.Sprintf("pull/%s/head", number)}
+	if depth > 0 {
+		args = append(args, "--depth", strconv.Itoa(depth))
+	}
+	if fetchTags {
+		args = append(args, "--tags")
+	}
+	if submodules {
+		args = append(args, "--recurse-submodules")
+	}
+
+	err = g.git(args...).Run()
+	if err != nil {
+		return fmt.Errorf("error fetching PR: %w", g.error(err))
+	}
+
+	return nil
+}
+
+func (g *githubClient) CheckoutPr(prBranch, ref string, submodules bool) error {
+	err := g.git("checkout", "-b", prBranch, ref).Run()
+	if err != nil {
+		return fmt.Errorf("error checking out PR: %w", g.error(err))
+	}
+
+	if submodules {
+		err = g.git("submodule", "update", "--init", "--recursive", "--checkout").Run()
+		if err != nil {
+			return fmt.Errorf("error updating submodules: %w", g.error(err))
+		}
+	}
+
+	return nil
+}
+
+func (g *githubClient) RebasePr(baseRef, prRef string, submodules bool) error {
+	err := g.git("rebase", baseRef, prRef).Run()
+	if err != nil {
+		return fmt.Errorf("error rebasing PR: %w", g.error(err))
+	}
+
+	if submodules {
+		err = g.git("submodule", "update", "--init", "--recursive", "--rebase").Run()
+		if err != nil {
+			return fmt.Errorf("error updating submodules: %w", g.error(err))
+		}
+	}
+
+	return nil
+}
+
+func (g *githubClient) MergePr(prRef string, submodules bool) error {
+	err := g.git("merge", prRef, "--no-stat").Run()
+	if err != nil {
+		return fmt.Errorf("error merging PR: %w", g.error(err))
+	}
+
+	if submodules {
+		err = g.git("submodule", "update", "--init", "--recursive", "--merge").Run()
+		if err != nil {
+			return fmt.Errorf("error updating submodules: %w", g.error(err))
+		}
+	}
+
+	return nil
 }

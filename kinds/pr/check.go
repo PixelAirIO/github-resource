@@ -45,18 +45,18 @@ func (*Pr) Check(stdin []byte) {
 }
 
 func check(request checkRequest, ghc gh.GithubClient) []version {
-	ref, err := ghc.LatestCommitForPR(*request.Source.Number)
+	ref, err := ghc.LatestCommitForPR(request.Source.Number)
 	if err != nil {
 		log.Fatalf("failed to get latest commit for PR: %v", err)
 	}
 
-	if request.Version.SHA == ref {
+	if request.Version.Ref == ref {
 		return nil
 	}
 
 	return []version{
 		version{
-			SHA: ref,
+			Ref: ref,
 		},
 	}
 }

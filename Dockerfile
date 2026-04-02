@@ -26,6 +26,8 @@ LABEL org.opencontainers.image.source="https://github.com/PixelAirIO/github-reso
 LABEL org.opencontainers.image.authors="Pixel Air IO"
 LABEL org.opencontainers.image.vendor="Pixel Air IO"
 COPY --from=builder assets/ /opt/resource/
+COPY gitpass.sh /usr/local/bin/
+RUN apk --no-cache add git
 
 FROM resource AS tests
 COPY --from=builder /tests /tests

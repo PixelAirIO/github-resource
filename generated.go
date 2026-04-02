@@ -26,6 +26,22 @@ var AllPullRequestState = []PullRequestState{
 	PullRequestStateOpen,
 }
 
+// __getPullRequestInput is used internally by genqlient
+type __getPullRequestInput struct {
+	Owner  string `json:"owner"`
+	Name   string `json:"name"`
+	Number int    `json:"number"`
+}
+
+// GetOwner returns __getPullRequestInput.Owner, and is useful for accessing the field via an interface.
+func (v *__getPullRequestInput) GetOwner() string { return v.Owner }
+
+// GetName returns __getPullRequestInput.Name, and is useful for accessing the field via an interface.
+func (v *__getPullRequestInput) GetName() string { return v.Name }
+
+// GetNumber returns __getPullRequestInput.Number, and is useful for accessing the field via an interface.
+func (v *__getPullRequestInput) GetNumber() int { return v.Number }
+
 // __getPullRequestsInput is used internally by genqlient
 type __getPullRequestsInput struct {
 	Owner     string             `json:"owner"`
@@ -65,6 +81,96 @@ func (v *__latestCommitForPrInput) GetName() string { return v.Name }
 
 // GetNumber returns __latestCommitForPrInput.Number, and is useful for accessing the field via an interface.
 func (v *__latestCommitForPrInput) GetNumber() int { return v.Number }
+
+// getPullRequestRepository includes the requested fields of the GraphQL type Repository.
+// The GraphQL type's documentation follows.
+//
+// A repository contains the content for a project.
+type getPullRequestRepository struct {
+	// The HTTP URL for this repository
+	Url string `json:"url"`
+	// Returns a single pull request from the current repository by number.
+	PullRequest getPullRequestRepositoryPullRequest `json:"pullRequest"`
+}
+
+// GetUrl returns getPullRequestRepository.Url, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepository) GetUrl() string { return v.Url }
+
+// GetPullRequest returns getPullRequestRepository.PullRequest, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepository) GetPullRequest() getPullRequestRepositoryPullRequest {
+	return v.PullRequest
+}
+
+// getPullRequestRepositoryPullRequest includes the requested fields of the GraphQL type PullRequest.
+// The GraphQL type's documentation follows.
+//
+// A repository pull request.
+type getPullRequestRepositoryPullRequest struct {
+	// Identifies the name of the base Ref associated with the pull request, even if the ref has been deleted.
+	BaseRefName string `json:"baseRefName"`
+	// Identifies the name of the head Ref associated with the pull request, even if the ref has been deleted.
+	HeadRefName string `json:"headRefName"`
+	// Identifies if the pull request is a draft.
+	IsDraft bool `json:"isDraft"`
+	// The permalink to the pull request.
+	Permalink string `json:"permalink"`
+	// Lists the files changed within this pull request.
+	Files getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection `json:"files"`
+}
+
+// GetBaseRefName returns getPullRequestRepositoryPullRequest.BaseRefName, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetBaseRefName() string { return v.BaseRefName }
+
+// GetHeadRefName returns getPullRequestRepositoryPullRequest.HeadRefName, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetHeadRefName() string { return v.HeadRefName }
+
+// GetIsDraft returns getPullRequestRepositoryPullRequest.IsDraft, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetIsDraft() bool { return v.IsDraft }
+
+// GetPermalink returns getPullRequestRepositoryPullRequest.Permalink, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetPermalink() string { return v.Permalink }
+
+// GetFiles returns getPullRequestRepositoryPullRequest.Files, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetFiles() getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection {
+	return v.Files
+}
+
+// getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection includes the requested fields of the GraphQL type PullRequestChangedFileConnection.
+// The GraphQL type's documentation follows.
+//
+// The connection type for PullRequestChangedFile.
+type getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection struct {
+	// A list of nodes.
+	Nodes []getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnectionNodesPullRequestChangedFile `json:"nodes"`
+}
+
+// GetNodes returns getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection) GetNodes() []getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnectionNodesPullRequestChangedFile {
+	return v.Nodes
+}
+
+// getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnectionNodesPullRequestChangedFile includes the requested fields of the GraphQL type PullRequestChangedFile.
+// The GraphQL type's documentation follows.
+//
+// A file changed in a pull request.
+type getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnectionNodesPullRequestChangedFile struct {
+	// The path of the file.
+	Path string `json:"path"`
+}
+
+// GetPath returns getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnectionNodesPullRequestChangedFile.Path, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnectionNodesPullRequestChangedFile) GetPath() string {
+	return v.Path
+}
+
+// getPullRequestResponse is returned by getPullRequest on success.
+type getPullRequestResponse struct {
+	// Lookup a given repository by the owner and repository name.
+	Repository getPullRequestRepository `json:"repository"`
+}
+
+// GetRepository returns getPullRequestResponse.Repository, and is useful for accessing the field via an interface.
+func (v *getPullRequestResponse) GetRepository() getPullRequestRepository { return v.Repository }
 
 // getPullRequestsRepository includes the requested fields of the GraphQL type Repository.
 // The GraphQL type's documentation follows.
@@ -114,6 +220,8 @@ type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest 
 	Permalink string `json:"permalink"`
 	// Identifies the name of the base Ref associated with the pull request, even if the ref has been deleted.
 	BaseRefName string `json:"baseRefName"`
+	// Identifies the name of the head Ref associated with the pull request, even if the ref has been deleted.
+	HeadRefName string `json:"headRefName"`
 }
 
 // GetNumber returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Number, and is useful for accessing the field via an interface.
@@ -134,6 +242,11 @@ func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequ
 // GetBaseRefName returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.BaseRefName, and is useful for accessing the field via an interface.
 func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetBaseRefName() string {
 	return v.BaseRefName
+}
+
+// GetHeadRefName returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.HeadRefName, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetHeadRefName() string {
+	return v.HeadRefName
 }
 
 // getPullRequestsRepositoryPullRequestsPullRequestConnectionPageInfo includes the requested fields of the GraphQL type PageInfo.
@@ -245,6 +358,55 @@ type latestCommitForPrResponse struct {
 // GetRepository returns latestCommitForPrResponse.Repository, and is useful for accessing the field via an interface.
 func (v *latestCommitForPrResponse) GetRepository() latestCommitForPrRepository { return v.Repository }
 
+// The query executed by getPullRequest.
+const getPullRequest_Operation = `
+query getPullRequest ($owner: String!, $name: String!, $number: Int!) {
+	repository(owner: $owner, name: $name) {
+		url
+		pullRequest(number: $number) {
+			baseRefName
+			headRefName
+			isDraft
+			permalink
+			files(first: 100) {
+				nodes {
+					path
+				}
+			}
+		}
+	}
+}
+`
+
+func getPullRequest(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	owner string,
+	name string,
+	number int,
+) (data_ *getPullRequestResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "getPullRequest",
+		Query:  getPullRequest_Operation,
+		Variables: &__getPullRequestInput{
+			Owner:  owner,
+			Name:   name,
+			Number: number,
+		},
+	}
+
+	data_ = &getPullRequestResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The query executed by getPullRequests.
 const getPullRequests_Operation = `
 query getPullRequests ($owner: String!, $name: String!, $states: [PullRequestState!], $labels: [String!], $endCursor: String) {
@@ -255,6 +417,7 @@ query getPullRequests ($owner: String!, $name: String!, $states: [PullRequestSta
 				isDraft
 				permalink
 				baseRefName
+				headRefName
 			}
 			pageInfo {
 				endCursor

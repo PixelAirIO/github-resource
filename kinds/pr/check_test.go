@@ -11,14 +11,13 @@ import (
 
 func TestInternalCheckNoPriorVersion(t *testing.T) {
 	assert := require.New(t)
-	n := 60
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
 				Config: gh.Config{
 					Repository: "owner/repo",
 				},
-				Number: &n,
+				Number: 60,
 			},
 		},
 	}
@@ -28,23 +27,22 @@ func TestInternalCheckNoPriorVersion(t *testing.T) {
 
 	versions := check(req, client)
 	assert.Len(versions, 1)
-	assert.Equal("some-sha", versions[0].SHA)
+	assert.Equal("some-sha", versions[0].Ref)
 }
 
 func TestInternalCheckPriorVersionIsTheSame(t *testing.T) {
 	assert := require.New(t)
-	n := 60
 	req := checkRequest{
 		Source: Source{
 			Config: Config{
 				Config: gh.Config{
 					Repository: "owner/repo",
 				},
-				Number: &n,
+				Number: 60,
 			},
 		},
 		Version: version{
-			SHA: "some-sha",
+			Ref: "some-sha",
 		},
 	}
 
