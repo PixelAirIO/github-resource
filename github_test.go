@@ -25,18 +25,18 @@ func TestNewGithubClientDoesNotOverrideGivenEndpoint(t *testing.T) {
 	assert := require.New(t)
 
 	cfg := Config{
-		Repository:    "owner/repo",
-		APIEndpointV3: "https://custom.endpoint/",
-		APIEndpointV4: "https://custom.endpoint/graphql",
-		HostEndpoint:  "https://custom.host/",
-		AccessToken:   "some-access-token",
+		Repository:      "owner/repo",
+		RestEndpoint:    "https://custom.endpoint/",
+		GraphqlEndpoint: "https://custom.endpoint/graphql",
+		HostEndpoint:    "https://custom.host/",
+		AccessToken:     "some-access-token",
 	}
 	client, err := NewGithubClient(cfg)
 	assert.NoError(err)
 	assert.NotNil(client)
 	rest, gql := client.APIEndpoints()
-	assert.Equal(cfg.APIEndpointV3, rest)
-	assert.Equal(cfg.APIEndpointV4, gql)
+	assert.Equal(cfg.RestEndpoint, rest)
+	assert.Equal(cfg.GraphqlEndpoint, gql)
 	assert.Equal(cfg.HostEndpoint, client.HostEndpoint())
 	assert.Equal(cfg.AccessToken, client.AccessToken())
 }

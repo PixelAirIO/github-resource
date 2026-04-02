@@ -22,8 +22,8 @@ import (
 
 type Config struct {
 	AccessToken         string `json:"access_token"`
-	APIEndpointV4       string `json:"api_endpoint_v4"`
-	APIEndpointV3       string `json:"api_endpoint_v3"`
+	GraphqlEndpoint     string `json:"graphql_endpoint"`
+	RestEndpoint        string `json:"rest_endpoint"`
 	HostEndpoint        string `json:"host_endpoint"`
 	Repository          string `json:"repository"`
 	DisableGitLFS       bool   `json:"disable_git_lfs"`
@@ -101,12 +101,12 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		return nil, fmt.Errorf("error checking for the git cli: %w", err)
 	}
 
-	if cfg.APIEndpointV4 == "" {
-		cfg.APIEndpointV4 = DefaultGraphqlEndpoint
+	if cfg.GraphqlEndpoint == "" {
+		cfg.GraphqlEndpoint = DefaultGraphqlEndpoint
 	}
 
-	if cfg.APIEndpointV3 == "" {
-		cfg.APIEndpointV3 = DefaultRestEndpoint
+	if cfg.RestEndpoint == "" {
+		cfg.RestEndpoint = DefaultRestEndpoint
 	}
 
 	if cfg.HostEndpoint == "" {
@@ -138,7 +138,7 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		transport = http.DefaultTransport
 	}
 
-	gqlClient := graphql.NewClient(cfg.APIEndpointV4, &http.Client{
+	gqlClient := graphql.NewClient(cfg.GraphqlEndpoint, &http.Client{
 		Transport: &authedTransport{
 			accessToken: cfg.AccessToken,
 			transport:   transport,
@@ -150,8 +150,8 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		ghc = ghc.WithAuthToken(cfg.AccessToken)
 	}
 
-	if cfg.APIEndpointV3 != DefaultRestEndpoint {
-		u, err := url.Parse(cfg.APIEndpointV3)
+	if cfg.RestEndpoint != DefaultRestEndpoint {
+		u, err := url.Parse(cfg.RestEndpoint)
 		if err != nil {
 			return nil, err
 		}
@@ -174,7 +174,7 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 }
 
 func (g *githubClient) APIEndpoints() (string, string) {
-	return g.restClient.BaseURL.String(), g.config.APIEndpointV4
+	return g.restClient.BaseURL.String(), g.config.GraphqlEndpoint
 }
 
 func (g *githubClient) HostEndpoint() string {

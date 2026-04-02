@@ -40,8 +40,7 @@ The following `kind`'s are supported:
 Authentication is optional if you're accessing public repositories, but you'll
 likely want to configure it to avoid rate-limits. Create a [Personal Access
 token](https://github.com/settings/personal-access-tokens) (classic or
-fine-grained is fine). You provide the resource the access token via the
-`access_token` field.
+fine-grained work).
 
 You can also configure the the resource to use a token from a GitHub or OAuth
 app. See the GitHub docs for details:
@@ -58,8 +57,8 @@ example/my-app`.
 
 The endpoints used can be configured by setting the following:
 
-- `api_endpoint_v4` - Defaults to the GraphQL endpoint `https://api.github.com/graphql`
-- `api_endpoint_v3` - Defaults to the REST endpoint `https://api.github.com`
+- `graphql_endpoint` - Defaults to the GraphQL endpoint `https://api.github.com/graphql`
+- `rest_endpoint` - Defaults to the REST endpoint `https://api.github.com`
 - `host_endpoint` - Defaults to `https://github.com`, where repositories are hosted
 
 We try to mostly use the GraphQL API because you're less likely to hit API rate
@@ -90,6 +89,11 @@ The following table outlines the required permissions for each `kind`.
     </tr>
 </table>
 
+---
+
+The next sections describe how to configure each `kind` of this resource type.
+
+---
 
 ## `kind: prs`
 
