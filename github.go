@@ -166,9 +166,9 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		config:     cfg,
 		cliEnv: []string{
 			fmt.Sprintf("%s=%s", "X_OAUTH_BASIC_TOKEN", cfg.AccessToken),
+			fmt.Sprintf("%s=%t", "GIT_LFS_SKIP_SMUDGE", cfg.DisableGitLFS),
 			"GIT_ASKPASS=/usr/local/bin/gitpass.sh",
 			"GIT_TERMINAL_PROMPT=0",
-			fmt.Sprintf("%s=%t", "GIT_LFS_SKIP_SMUDGE", cfg.DisableGitLFS),
 		},
 	}, nil
 }
@@ -351,15 +351,9 @@ func (g *githubClient) git(args ...string) *exec.Cmd {
 	cmd := exec.Command("git", args...)
 	cmd.Env = append(cmd.Env, os.Environ()...)
 	cmd.Env = append(cmd.Env, g.cliEnv...)
+	cmd.Stdout = os.Stderr
+	cmd.Stderr = os.Stderr
 	return cmd
-}
-
-func (g *githubClient) error(err error) error {
-	var e *exec.ExitError
-	if errors.As(err, &e) {
-		return errors.New(string(e.Stderr))
-	}
-	return err
 }
 
 func (g *githubClient) endpoint(uri string) (string, error) {
@@ -374,27 +368,27 @@ func (g *githubClient) endpoint(uri string) (string, error) {
 func (g *githubClient) InitRepo(uri, branch string) error {
 	err := g.git("init", "--initial-branch", branch).Run()
 	if err != nil {
-		return fmt.Errorf("git init error: %w", g.error(err))
+		return fmt.Errorf("git init error: %w", err)
 	}
 
 	err = g.git("config", "user.name", "concourse-ci").Run()
 	if err != nil {
-		return fmt.Errorf("git config user.name error: %w", g.error(err))
+		return fmt.Errorf("git config user.name error: %w", err)
 	}
 
 	err = g.git("config", "user.email", "concourse@local").Run()
 	if err != nil {
-		return fmt.Errorf("git config user.email error: %w", g.error(err))
+		return fmt.Errorf("git config user.email error: %w", err)
 	}
 
 	err = g.git("config", "url.https://x-oauth-basic@github.com/.insteadOf", "git@github.com:").Run()
 	if err != nil {
-		return fmt.Errorf("git config url-1 error: %w", g.error(err))
+		return fmt.Errorf("git config url-1 error: %w", err)
 	}
 
 	err = g.git("config", "url.https://.insteadOf", "git://").Run()
 	if err != nil {
-		return fmt.Errorf("git config url-2 error: %w", g.error(err))
+		return fmt.Errorf("git config url-2 error: %w", err)
 	}
 
 	remoteUri, err := g.endpoint(uri)
@@ -404,7 +398,7 @@ func (g *githubClient) InitRepo(uri, branch string) error {
 
 	err = g.git("remote", "add", "origin", remoteUri).Run()
 	if err != nil {
-		return fmt.Errorf("error setting origin: %w", g.error(err))
+		return fmt.Errorf("error setting origin: %w", err)
 	}
 
 	return nil
@@ -424,13 +418,13 @@ func (g *githubClient) PullBranch(branch string, depth int, fetchTags, submodule
 
 	err := g.git(pullArgs...).Run()
 	if err != nil {
-		return fmt.Errorf("error pulling origin: %w", g.error(err))
+		return fmt.Errorf("error pulling origin: %w", err)
 	}
 
 	if submodules {
 		err = g.git("submodule", "update", "--init", "--recursive").Run()
 		if err != nil {
-			return fmt.Errorf("error updating submodules: %w", g.error(err))
+			return fmt.Errorf("error updating submodules: %w", err)
 		}
 	}
 
@@ -456,7 +450,7 @@ func (g *githubClient) FetchPr(uri, number string, depth int, fetchTags, submodu
 
 	err = g.git(args...).Run()
 	if err != nil {
-		return fmt.Errorf("error fetching PR: %w", g.error(err))
+		return fmt.Errorf("error fetching PR: %w", err)
 	}
 
 	return nil
@@ -465,13 +459,13 @@ func (g *githubClient) FetchPr(uri, number string, depth int, fetchTags, submodu
 func (g *githubClient) CheckoutPr(prBranch, ref string, submodules bool) error {
 	err := g.git("checkout", "-b", prBranch, ref).Run()
 	if err != nil {
-		return fmt.Errorf("error checking out PR: %w", g.error(err))
+		return fmt.Errorf("error checking out PR: %w", err)
 	}
 
 	if submodules {
 		err = g.git("submodule", "update", "--init", "--recursive", "--checkout").Run()
 		if err != nil {
-			return fmt.Errorf("error updating submodules: %w", g.error(err))
+			return fmt.Errorf("error updating submodules: %w", err)
 		}
 	}
 
@@ -481,13 +475,13 @@ func (g *githubClient) CheckoutPr(prBranch, ref string, submodules bool) error {
 func (g *githubClient) RebasePr(baseRef, prRef string, submodules bool) error {
 	err := g.git("rebase", baseRef, prRef).Run()
 	if err != nil {
-		return fmt.Errorf("error rebasing PR: %w", g.error(err))
+		return fmt.Errorf("error rebasing PR: %w", err)
 	}
 
 	if submodules {
 		err = g.git("submodule", "update", "--init", "--recursive", "--rebase").Run()
 		if err != nil {
-			return fmt.Errorf("error updating submodules: %w", g.error(err))
+			return fmt.Errorf("error updating submodules: %w", err)
 		}
 	}
 
@@ -497,13 +491,13 @@ func (g *githubClient) RebasePr(baseRef, prRef string, submodules bool) error {
 func (g *githubClient) MergePr(prRef string, submodules bool) error {
 	err := g.git("merge", prRef, "--no-stat").Run()
 	if err != nil {
-		return fmt.Errorf("error merging PR: %w", g.error(err))
+		return fmt.Errorf("error merging PR: %w", err)
 	}
 
 	if submodules {
 		err = g.git("submodule", "update", "--init", "--recursive", "--merge").Run()
 		if err != nil {
-			return fmt.Errorf("error updating submodules: %w", g.error(err))
+			return fmt.Errorf("error updating submodules: %w", err)
 		}
 	}
 

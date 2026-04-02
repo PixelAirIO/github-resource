@@ -46,7 +46,7 @@ func (*Pr) In(stdin []byte, dest string) {
 
 	err = in(request, dest, ghc)
 	if err != nil {
-		log.Fatalf("error getting Prs: %v", err)
+		log.Fatalf("error getting PR: %v", err)
 	}
 
 	resp := inResponse{
@@ -89,6 +89,11 @@ func in(req inRequest, dest string, ghc gh.GithubClient) error {
 			return err
 		}
 
+		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
+		if err != nil {
+			return err
+		}
+
 		err = ghc.MergePr(req.Version.Ref, req.Source.Submodules)
 		if err != nil {
 			return err
@@ -99,6 +104,12 @@ func in(req inRequest, dest string, ghc gh.GithubClient) error {
 		if err != nil {
 			return err
 		}
+
+		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
+		if err != nil {
+			return err
+		}
+
 		err = ghc.RebasePr(pr.TargetBranch, pr.Branch, req.Source.Submodules)
 		if err != nil {
 			return err
