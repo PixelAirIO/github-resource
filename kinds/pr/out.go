@@ -25,7 +25,8 @@ type outParams struct {
 }
 
 type outResponse struct {
-	Version version `json:"version"`
+	Version  version     `json:"version"`
+	Metadata gh.Metadata `json:"metadata,omitempty"`
 }
 
 func (*Pr) Out(stdin []byte, src string) {
@@ -70,13 +71,29 @@ func (*Pr) Out(stdin []byte, src string) {
 
 	err = ghc.UpdatePRStatus(request.Params.Ref, request.Params.Name, request.Params.Status, request.Params.Description)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatalf("error updating PR status: %v", err)
 	}
+
+	pr, err := ghc.GetPRInfo(int(request.Source.Number))
+	if err != nil {
+		log.Fatalf("error getting PR info: %v", err)
+	}
+
+	// We have to populate metadata otherwise we overwrite what the get step
+	// fetched with nothing, clearing out the metadata for the version
+	var meta gh.Metadata
+	meta.Add("ref", request.Params.Ref)
+	meta.Add("pr", pr.Number)
+	meta.Add("url", pr.Url)
+	meta.Add("target_branch", pr.TargetBranch)
+	meta.Add("pr_branch", pr.Branch)
+	meta.Add("author", pr.Author)
 
 	resp := outResponse{
 		Version: version{
 			Ref: request.Params.Ref,
 		},
+		Metadata: meta,
 	}
 
 	ver, err := json.Marshal(resp)

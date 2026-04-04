@@ -193,6 +193,7 @@ type PullRequest struct {
 	FilesChanged  []string `json:"changed_files"`
 	ParentRepoUrl string   `json:"parent_url"`
 	Branch        string   `json:"branch"`
+	Author        string   `json:"author"`
 }
 
 func (g *githubClient) ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error) {
@@ -218,6 +219,9 @@ query getPullRequests(
                 permalink
                 baseRefName
                 headRefName
+                author {
+                    login
+                }
             }
             pageInfo {
 	            endCursor
@@ -244,6 +248,7 @@ query getPullRequests(
 				IsDraft:      v.IsDraft,
 				TargetBranch: v.BaseRefName,
 				Branch:       v.HeadRefName,
+				Author:       v.Author.GetLogin(),
 			})
 		}
 
@@ -297,10 +302,14 @@ query getPullRequest(
     repository(owner: $owner, name: $name) {
         url
         pullRequest(number: $number) {
-            baseRefName
-            headRefName
+            number
             isDraft
             permalink
+            baseRefName
+            headRefName
+            author {
+                login
+            }
             files(first: 100) {
                 nodes {
                     path
@@ -329,6 +338,7 @@ query getPullRequest(
 		FilesChanged:  files,
 		ParentRepoUrl: resp.Repository.Url,
 		Branch:        resp.Repository.PullRequest.HeadRefName,
+		Author:        resp.Repository.PullRequest.Author.GetLogin(),
 	}, nil
 }
 

@@ -4,6 +4,8 @@ package githubresource
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -106,23 +108,24 @@ func (v *getPullRequestRepository) GetPullRequest() getPullRequestRepositoryPull
 //
 // A repository pull request.
 type getPullRequestRepositoryPullRequest struct {
-	// Identifies the name of the base Ref associated with the pull request, even if the ref has been deleted.
-	BaseRefName string `json:"baseRefName"`
-	// Identifies the name of the head Ref associated with the pull request, even if the ref has been deleted.
-	HeadRefName string `json:"headRefName"`
+	// Identifies the pull request number.
+	Number int `json:"number"`
 	// Identifies if the pull request is a draft.
 	IsDraft bool `json:"isDraft"`
 	// The permalink to the pull request.
 	Permalink string `json:"permalink"`
+	// Identifies the name of the base Ref associated with the pull request, even if the ref has been deleted.
+	BaseRefName string `json:"baseRefName"`
+	// Identifies the name of the head Ref associated with the pull request, even if the ref has been deleted.
+	HeadRefName string `json:"headRefName"`
+	// The actor who authored the comment.
+	Author getPullRequestRepositoryPullRequestAuthorActor `json:"-"`
 	// Lists the files changed within this pull request.
 	Files getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection `json:"files"`
 }
 
-// GetBaseRefName returns getPullRequestRepositoryPullRequest.BaseRefName, and is useful for accessing the field via an interface.
-func (v *getPullRequestRepositoryPullRequest) GetBaseRefName() string { return v.BaseRefName }
-
-// GetHeadRefName returns getPullRequestRepositoryPullRequest.HeadRefName, and is useful for accessing the field via an interface.
-func (v *getPullRequestRepositoryPullRequest) GetHeadRefName() string { return v.HeadRefName }
+// GetNumber returns getPullRequestRepositoryPullRequest.Number, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetNumber() int { return v.Number }
 
 // GetIsDraft returns getPullRequestRepositoryPullRequest.IsDraft, and is useful for accessing the field via an interface.
 func (v *getPullRequestRepositoryPullRequest) GetIsDraft() bool { return v.IsDraft }
@@ -130,10 +133,311 @@ func (v *getPullRequestRepositoryPullRequest) GetIsDraft() bool { return v.IsDra
 // GetPermalink returns getPullRequestRepositoryPullRequest.Permalink, and is useful for accessing the field via an interface.
 func (v *getPullRequestRepositoryPullRequest) GetPermalink() string { return v.Permalink }
 
+// GetBaseRefName returns getPullRequestRepositoryPullRequest.BaseRefName, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetBaseRefName() string { return v.BaseRefName }
+
+// GetHeadRefName returns getPullRequestRepositoryPullRequest.HeadRefName, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetHeadRefName() string { return v.HeadRefName }
+
+// GetAuthor returns getPullRequestRepositoryPullRequest.Author, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetAuthor() getPullRequestRepositoryPullRequestAuthorActor {
+	return v.Author
+}
+
 // GetFiles returns getPullRequestRepositoryPullRequest.Files, and is useful for accessing the field via an interface.
 func (v *getPullRequestRepositoryPullRequest) GetFiles() getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection {
 	return v.Files
 }
+
+func (v *getPullRequestRepositoryPullRequest) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getPullRequestRepositoryPullRequest
+		Author json.RawMessage `json:"author"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getPullRequestRepositoryPullRequest = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.Author
+		src := firstPass.Author
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshalgetPullRequestRepositoryPullRequestAuthorActor(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal getPullRequestRepositoryPullRequest.Author: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalgetPullRequestRepositoryPullRequest struct {
+	Number int `json:"number"`
+
+	IsDraft bool `json:"isDraft"`
+
+	Permalink string `json:"permalink"`
+
+	BaseRefName string `json:"baseRefName"`
+
+	HeadRefName string `json:"headRefName"`
+
+	Author json.RawMessage `json:"author"`
+
+	Files getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection `json:"files"`
+}
+
+func (v *getPullRequestRepositoryPullRequest) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *getPullRequestRepositoryPullRequest) __premarshalJSON() (*__premarshalgetPullRequestRepositoryPullRequest, error) {
+	var retval __premarshalgetPullRequestRepositoryPullRequest
+
+	retval.Number = v.Number
+	retval.IsDraft = v.IsDraft
+	retval.Permalink = v.Permalink
+	retval.BaseRefName = v.BaseRefName
+	retval.HeadRefName = v.HeadRefName
+	{
+
+		dst := &retval.Author
+		src := v.Author
+		var err error
+		*dst, err = __marshalgetPullRequestRepositoryPullRequestAuthorActor(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal getPullRequestRepositoryPullRequest.Author: %w", err)
+		}
+	}
+	retval.Files = v.Files
+	return &retval, nil
+}
+
+// getPullRequestRepositoryPullRequestAuthorActor includes the requested fields of the GraphQL interface Actor.
+//
+// getPullRequestRepositoryPullRequestAuthorActor is implemented by the following types:
+// getPullRequestRepositoryPullRequestAuthorBot
+// getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount
+// getPullRequestRepositoryPullRequestAuthorMannequin
+// getPullRequestRepositoryPullRequestAuthorOrganization
+// getPullRequestRepositoryPullRequestAuthorUser
+// The GraphQL type's documentation follows.
+//
+// Represents an object which can take actions on GitHub. Typically a User or Bot.
+type getPullRequestRepositoryPullRequestAuthorActor interface {
+	implementsGraphQLInterfacegetPullRequestRepositoryPullRequestAuthorActor()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+	// GetLogin returns the interface-field "login" from its implementation.
+	// The GraphQL interface field's documentation follows.
+	//
+	// The username of the actor.
+	GetLogin() string
+}
+
+func (v *getPullRequestRepositoryPullRequestAuthorBot) implementsGraphQLInterfacegetPullRequestRepositoryPullRequestAuthorActor() {
+}
+func (v *getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount) implementsGraphQLInterfacegetPullRequestRepositoryPullRequestAuthorActor() {
+}
+func (v *getPullRequestRepositoryPullRequestAuthorMannequin) implementsGraphQLInterfacegetPullRequestRepositoryPullRequestAuthorActor() {
+}
+func (v *getPullRequestRepositoryPullRequestAuthorOrganization) implementsGraphQLInterfacegetPullRequestRepositoryPullRequestAuthorActor() {
+}
+func (v *getPullRequestRepositoryPullRequestAuthorUser) implementsGraphQLInterfacegetPullRequestRepositoryPullRequestAuthorActor() {
+}
+
+func __unmarshalgetPullRequestRepositoryPullRequestAuthorActor(b []byte, v *getPullRequestRepositoryPullRequestAuthorActor) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "Bot":
+		*v = new(getPullRequestRepositoryPullRequestAuthorBot)
+		return json.Unmarshal(b, *v)
+	case "EnterpriseUserAccount":
+		*v = new(getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount)
+		return json.Unmarshal(b, *v)
+	case "Mannequin":
+		*v = new(getPullRequestRepositoryPullRequestAuthorMannequin)
+		return json.Unmarshal(b, *v)
+	case "Organization":
+		*v = new(getPullRequestRepositoryPullRequestAuthorOrganization)
+		return json.Unmarshal(b, *v)
+	case "User":
+		*v = new(getPullRequestRepositoryPullRequestAuthorUser)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing Actor.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for getPullRequestRepositoryPullRequestAuthorActor: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalgetPullRequestRepositoryPullRequestAuthorActor(v *getPullRequestRepositoryPullRequestAuthorActor) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *getPullRequestRepositoryPullRequestAuthorBot:
+		typename = "Bot"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestRepositoryPullRequestAuthorBot
+		}{typename, v}
+		return json.Marshal(result)
+	case *getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount:
+		typename = "EnterpriseUserAccount"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount
+		}{typename, v}
+		return json.Marshal(result)
+	case *getPullRequestRepositoryPullRequestAuthorMannequin:
+		typename = "Mannequin"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestRepositoryPullRequestAuthorMannequin
+		}{typename, v}
+		return json.Marshal(result)
+	case *getPullRequestRepositoryPullRequestAuthorOrganization:
+		typename = "Organization"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestRepositoryPullRequestAuthorOrganization
+		}{typename, v}
+		return json.Marshal(result)
+	case *getPullRequestRepositoryPullRequestAuthorUser:
+		typename = "User"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestRepositoryPullRequestAuthorUser
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for getPullRequestRepositoryPullRequestAuthorActor: "%T"`, v)
+	}
+}
+
+// getPullRequestRepositoryPullRequestAuthorBot includes the requested fields of the GraphQL type Bot.
+// The GraphQL type's documentation follows.
+//
+// A special type of user which takes actions on behalf of GitHub Apps.
+type getPullRequestRepositoryPullRequestAuthorBot struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestRepositoryPullRequestAuthorBot.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorBot) GetTypename() string { return v.Typename }
+
+// GetLogin returns getPullRequestRepositoryPullRequestAuthorBot.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorBot) GetLogin() string { return v.Login }
+
+// getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount includes the requested fields of the GraphQL type EnterpriseUserAccount.
+// The GraphQL type's documentation follows.
+//
+// An account for a user who is an admin of an enterprise or a member of an enterprise through one or more organizations.
+type getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorEnterpriseUserAccount) GetLogin() string {
+	return v.Login
+}
+
+// getPullRequestRepositoryPullRequestAuthorMannequin includes the requested fields of the GraphQL type Mannequin.
+// The GraphQL type's documentation follows.
+//
+// A placeholder user for attribution of imported data on GitHub.
+type getPullRequestRepositoryPullRequestAuthorMannequin struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestRepositoryPullRequestAuthorMannequin.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorMannequin) GetTypename() string { return v.Typename }
+
+// GetLogin returns getPullRequestRepositoryPullRequestAuthorMannequin.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorMannequin) GetLogin() string { return v.Login }
+
+// getPullRequestRepositoryPullRequestAuthorOrganization includes the requested fields of the GraphQL type Organization.
+// The GraphQL type's documentation follows.
+//
+// An account on GitHub, with one or more owners, that has repositories, members and teams.
+type getPullRequestRepositoryPullRequestAuthorOrganization struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestRepositoryPullRequestAuthorOrganization.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorOrganization) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns getPullRequestRepositoryPullRequestAuthorOrganization.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorOrganization) GetLogin() string { return v.Login }
+
+// getPullRequestRepositoryPullRequestAuthorUser includes the requested fields of the GraphQL type User.
+// The GraphQL type's documentation follows.
+//
+// A user is an individual's account on GitHub that owns repositories and can make new content.
+type getPullRequestRepositoryPullRequestAuthorUser struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestRepositoryPullRequestAuthorUser.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorUser) GetTypename() string { return v.Typename }
+
+// GetLogin returns getPullRequestRepositoryPullRequestAuthorUser.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequestAuthorUser) GetLogin() string { return v.Login }
 
 // getPullRequestRepositoryPullRequestFilesPullRequestChangedFileConnection includes the requested fields of the GraphQL type PullRequestChangedFileConnection.
 // The GraphQL type's documentation follows.
@@ -222,6 +526,8 @@ type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest 
 	BaseRefName string `json:"baseRefName"`
 	// Identifies the name of the head Ref associated with the pull request, even if the ref has been deleted.
 	HeadRefName string `json:"headRefName"`
+	// The actor who authored the comment.
+	Author getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor `json:"-"`
 }
 
 // GetNumber returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Number, and is useful for accessing the field via an interface.
@@ -247,6 +553,312 @@ func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequ
 // GetHeadRefName returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.HeadRefName, and is useful for accessing the field via an interface.
 func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetHeadRefName() string {
 	return v.HeadRefName
+}
+
+// GetAuthor returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Author, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetAuthor() getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor {
+	return v.Author
+}
+
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest
+		Author json.RawMessage `json:"author"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.Author
+		src := firstPass.Author
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshalgetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Author: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshalgetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest struct {
+	Number int `json:"number"`
+
+	IsDraft bool `json:"isDraft"`
+
+	Permalink string `json:"permalink"`
+
+	BaseRefName string `json:"baseRefName"`
+
+	HeadRefName string `json:"headRefName"`
+
+	Author json.RawMessage `json:"author"`
+}
+
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) __premarshalJSON() (*__premarshalgetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest, error) {
+	var retval __premarshalgetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest
+
+	retval.Number = v.Number
+	retval.IsDraft = v.IsDraft
+	retval.Permalink = v.Permalink
+	retval.BaseRefName = v.BaseRefName
+	retval.HeadRefName = v.HeadRefName
+	{
+
+		dst := &retval.Author
+		src := v.Author
+		var err error
+		*dst, err = __marshalgetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Author: %w", err)
+		}
+	}
+	return &retval, nil
+}
+
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor includes the requested fields of the GraphQL interface Actor.
+//
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor is implemented by the following types:
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser
+// The GraphQL type's documentation follows.
+//
+// Represents an object which can take actions on GitHub. Typically a User or Bot.
+type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor interface {
+	implementsGraphQLInterfacegetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+	// GetLogin returns the interface-field "login" from its implementation.
+	// The GraphQL interface field's documentation follows.
+	//
+	// The username of the actor.
+	GetLogin() string
+}
+
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot) implementsGraphQLInterfacegetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount) implementsGraphQLInterfacegetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin) implementsGraphQLInterfacegetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization) implementsGraphQLInterfacegetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser) implementsGraphQLInterfacegetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+
+func __unmarshalgetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor(b []byte, v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "Bot":
+		*v = new(getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot)
+		return json.Unmarshal(b, *v)
+	case "EnterpriseUserAccount":
+		*v = new(getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount)
+		return json.Unmarshal(b, *v)
+	case "Mannequin":
+		*v = new(getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin)
+		return json.Unmarshal(b, *v)
+	case "Organization":
+		*v = new(getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization)
+		return json.Unmarshal(b, *v)
+	case "User":
+		*v = new(getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing Actor.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshalgetPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor(v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot:
+		typename = "Bot"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot
+		}{typename, v}
+		return json.Marshal(result)
+	case *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount:
+		typename = "EnterpriseUserAccount"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount
+		}{typename, v}
+		return json.Marshal(result)
+	case *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin:
+		typename = "Mannequin"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin
+		}{typename, v}
+		return json.Marshal(result)
+	case *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization:
+		typename = "Organization"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization
+		}{typename, v}
+		return json.Marshal(result)
+	case *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser:
+		typename = "User"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor: "%T"`, v)
+	}
+}
+
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot includes the requested fields of the GraphQL type Bot.
+// The GraphQL type's documentation follows.
+//
+// A special type of user which takes actions on behalf of GitHub Apps.
+type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot) GetLogin() string {
+	return v.Login
+}
+
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount includes the requested fields of the GraphQL type EnterpriseUserAccount.
+// The GraphQL type's documentation follows.
+//
+// An account for a user who is an admin of an enterprise or a member of an enterprise through one or more organizations.
+type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount) GetLogin() string {
+	return v.Login
+}
+
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin includes the requested fields of the GraphQL type Mannequin.
+// The GraphQL type's documentation follows.
+//
+// A placeholder user for attribution of imported data on GitHub.
+type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin) GetLogin() string {
+	return v.Login
+}
+
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization includes the requested fields of the GraphQL type Organization.
+// The GraphQL type's documentation follows.
+//
+// An account on GitHub, with one or more owners, that has repositories, members and teams.
+type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization) GetLogin() string {
+	return v.Login
+}
+
+// getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser includes the requested fields of the GraphQL type User.
+// The GraphQL type's documentation follows.
+//
+// A user is an individual's account on GitHub that owns repositories and can make new content.
+type getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser.Typename, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser.Login, and is useful for accessing the field via an interface.
+func (v *getPullRequestsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser) GetLogin() string {
+	return v.Login
 }
 
 // getPullRequestsRepositoryPullRequestsPullRequestConnectionPageInfo includes the requested fields of the GraphQL type PageInfo.
@@ -364,10 +976,15 @@ query getPullRequest ($owner: String!, $name: String!, $number: Int!) {
 	repository(owner: $owner, name: $name) {
 		url
 		pullRequest(number: $number) {
-			baseRefName
-			headRefName
+			number
 			isDraft
 			permalink
+			baseRefName
+			headRefName
+			author {
+				__typename
+				login
+			}
 			files(first: 100) {
 				nodes {
 					path
@@ -418,6 +1035,10 @@ query getPullRequests ($owner: String!, $name: String!, $states: [PullRequestSta
 				permalink
 				baseRefName
 				headRefName
+				author {
+					__typename
+					login
+				}
 			}
 			pageInfo {
 				endCursor

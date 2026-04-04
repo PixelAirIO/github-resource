@@ -17,7 +17,8 @@ type inRequest struct {
 }
 
 type inResponse struct {
-	Version version `json:"version"`
+	Version  version     `json:"version"`
+	Metadata gh.Metadata `json:"metadata,omitempty"`
 }
 
 func (*Pr) In(stdin []byte, dest string) {
@@ -44,13 +45,14 @@ func (*Pr) In(stdin []byte, dest string) {
 		log.Fatalf("failed to create Github client: %v", err)
 	}
 
-	err = in(request, dest, ghc)
+	meta, err := in(request, dest, ghc)
 	if err != nil {
 		log.Fatalf("error getting PR: %v", err)
 	}
 
 	resp := inResponse{
-		Version: request.Version,
+		Version:  request.Version,
+		Metadata: meta,
 	}
 
 	ver, err := json.Marshal(resp)
@@ -61,68 +63,76 @@ func (*Pr) In(stdin []byte, dest string) {
 	fmt.Println(string(ver))
 }
 
-func in(req inRequest, dest string, ghc gh.GithubClient) error {
+func in(req inRequest, dest string, ghc gh.GithubClient) (gh.Metadata, error) {
 	pr, err := ghc.GetPRInfo(int(req.Source.Number))
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	var meta gh.Metadata
+	meta.Add("ref", req.Version.Ref)
+	meta.Add("pr", pr.Number)
+	meta.Add("url", pr.Url)
+	meta.Add("target_branch", pr.TargetBranch)
+	meta.Add("pr_branch", pr.Branch)
+	meta.Add("author", pr.Author)
 
 	err = os.Chdir(dest)
 	if err != nil {
-		return fmt.Errorf("chdir: %w", err)
+		return nil, fmt.Errorf("chdir: %w", err)
 	}
 
 	err = ghc.InitRepo(pr.ParentRepoUrl, pr.TargetBranch)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = ghc.FetchPr(pr.ParentRepoUrl, pr.Number, req.Source.Depth, req.Source.FetchTags, req.Source.Submodules)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	switch strings.ToLower(req.Source.Config.MergeStrategy) {
 	case "merge", "":
 		err = ghc.PullBranch(pr.TargetBranch, req.Source.Depth, req.Source.FetchTags, req.Source.Submodules)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		err = ghc.MergePr(req.Version.Ref, req.Source.Submodules)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 	case "rebase":
 		err = ghc.PullBranch(pr.TargetBranch, req.Source.Depth, req.Source.FetchTags, req.Source.Submodules)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		err = ghc.RebasePr(pr.TargetBranch, pr.Branch, req.Source.Submodules)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 	case "checkout":
 		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	default:
 		log.Fatalf("unknown merge strategy '%s'", req.Source.MergeStrategy)
 	}
 
-	return nil
+	return meta, nil
 }

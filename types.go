@@ -14,3 +14,14 @@ type Kind interface {
 	In(stdin []byte, dest string)
 	Out(stdin []byte, src string)
 }
+
+type Metadata []*MetadataField
+
+func (m *Metadata) Add(name, value string) {
+	*m = append(*m, &MetadataField{Name: name, Value: value})
+}
+
+type MetadataField struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
