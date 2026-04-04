@@ -18,7 +18,7 @@ resources:
 - name: prs
   type: github
   source:
-    kind: prs # One of: prs, pr, release
+    kind: prs # One of: prs, pr
     access_token: gh_pat...
     repository: owner/repo
     # See below for config options, depending on which kind is selected
@@ -33,7 +33,6 @@ The following `kind`'s are supported:
 
 * [`prs`](#kind-prs) - Returns a list of pull requests.
 * [`pr`](#kind-pr) - Work with a single Pull Request, changing check statuses or posting comments.
-* [`release`](#kind-release) - Track or publish GitHub releases.
 
 ## `access_token` - Configuring Authentication
 
@@ -80,7 +79,7 @@ The following table outlines the required permissions for each `kind`.
     <tr>
         <td><code>pr</code></td>
         <td><code>repo:status</code></td>
-        <td>Repository permission "Commit statuses" Read & Write</td>
+        <td>Repository permission "Commit statuses" (Write)</td>
     </tr>
 </table>
 
@@ -234,7 +233,3 @@ The `put` step has the following params:
         <td>Description that will appear alongside the <code>name</code> of the PR check.</td>
     </tr>
 </table>
-
-## `kind: release` - NOT IMPLEMENTED YET
-
-Tracks and publishes GitHub releases.
