@@ -59,6 +59,7 @@ The endpoints used can be configured by setting the following:
 - `graphql_endpoint` - Defaults to the GraphQL endpoint `https://api.github.com/graphql`
 - `rest_endpoint` - Defaults to the REST endpoint `https://api.github.com`
 - `host_endpoint` - Defaults to `https://github.com`, where repositories are hosted
+- `skip_ssl_verification` - Skips SSL verification
 
 We try to mostly use the GraphQL API because you're less likely to hit API rate
 limits compared to the REST API.
@@ -195,6 +196,12 @@ comments.
             <code>fetch_tags</code><em>(Optional)<em>
         </td>
         <td>Set to <code>true</code> if you want tags to be fetched.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>disable_git_lfs</code><em>(Optional)<em>
+        </td>
+        <td>Set to <code>true</code> to not download LFS files.</td>
     </tr>
 </table>
 
