@@ -66,7 +66,7 @@ func (*Pr) In(stdin []byte, dest string) {
 func in(req inRequest, dest string, ghc gh.GithubClient) (gh.Metadata, error) {
 	pr, err := ghc.GetPRInfo(int(req.Source.Number))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting PR info: %w", err)
 	}
 
 	var meta gh.Metadata
@@ -84,45 +84,45 @@ func in(req inRequest, dest string, ghc gh.GithubClient) (gh.Metadata, error) {
 
 	err = ghc.InitRepo(pr.ParentRepoUrl, pr.TargetBranch)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error init repo: %w", err)
 	}
 
 	err = ghc.FetchPr(pr.ParentRepoUrl, pr.Number, req.Source.Depth, req.Source.FetchTags, req.Source.Submodules)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching PR: %w", err)
 	}
 
 	switch strings.ToLower(req.Source.Config.MergeStrategy) {
 	case "merge", "":
 		err = ghc.PullBranch(pr.TargetBranch, req.Source.Depth, req.Source.FetchTags, req.Source.Submodules)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error pulling branch '%s': %w", pr.TargetBranch, err)
 		}
 
 		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error checking out PR: %w", err)
 		}
 
 		err = ghc.MergePr(req.Version.Ref, req.Source.Submodules)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error locally merging PR: %w", err)
 		}
 
 	case "rebase":
 		err = ghc.PullBranch(pr.TargetBranch, req.Source.Depth, req.Source.FetchTags, req.Source.Submodules)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error pulling branch '%s': %w", pr.TargetBranch, err)
 		}
 
 		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error checking out PR: %w", err)
 		}
 
 		err = ghc.RebasePr(pr.TargetBranch, pr.Branch, req.Source.Submodules)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error locally rebasing PR: %w", err)
 		}
 
 	case "checkout":
