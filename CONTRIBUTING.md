@@ -24,16 +24,18 @@ query is being used.
 
 # Testing
 
-You can run tests with `go test -v ./...`.
+You can run tests with
+
+```
+go test -v ./...
+```
+or
+```
+docker build -t github-resource --target tests .
+```
 
 # Building
 
 ```
 docker build -t github-resource .
-```
-
-You can build and run the tests by doing
-
-```
-docker build -t github-resource --target tests .
 ```
