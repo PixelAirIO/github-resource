@@ -47,6 +47,8 @@ func (*Pr) Out(stdin []byte, src string) {
 		err = errors.Join(errors.New("params.name cannot be blank"))
 	}
 
+	name := gh.InterpolateBuildMetadata(request.Params.Name)
+
 	if request.Params.Status == "" {
 		err = errors.Join(errors.New("params.status cannot be blank. Must be one of: pending, success, error, failure"))
 	} else {
@@ -69,7 +71,7 @@ func (*Pr) Out(stdin []byte, src string) {
 		log.Fatalf("failed to create Github client: %v", err)
 	}
 
-	err = ghc.UpdatePRStatus(request.Params.Ref, request.Params.Name, request.Params.Status, request.Params.Description)
+	err = ghc.UpdatePRStatus(request.Params.Ref, name, request.Params.Status, request.Params.Description)
 	if err != nil {
 		log.Fatalf("error updating PR status: %v", err)
 	}

@@ -229,7 +229,10 @@ The `put` step has the following params:
         <td>
             <code>name</code><em>(Required)<em>
         </td>
-        <td>The name of the check that will be displayed in the list of PR checks for the PR (e.g. `unit-tests`, `integration`).</td>
+        <td>The name of the check that will be displayed in the list of PR
+        checks for the PR (e.g. `unit-tests`, `integration`). You can use <a
+        href="https://concourse-ci.org/docs/resource-types/implementing/#build-metadata">Build
+        Metadata</a> in the name like <code>$BUILD_JOB_NAME</code>.</td>
     </tr>
     <tr>
         <td><code>status</code><em>(Required)<em></td>

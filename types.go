@@ -1,5 +1,9 @@
 package githubresource
 
+import (
+	"os"
+)
+
 type BaseRequest struct {
 	Source `json:"source"`
 }
@@ -24,4 +28,23 @@ func (m *Metadata) Add(name, value string) {
 type MetadataField struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+func InterpolateBuildMetadata(s string) string {
+	return os.Expand(s, func(e string) string {
+		switch e {
+		case "BUILD_ID",
+			"BUILD_NAME",
+			"BUILD_JOB_NAME",
+			"BUILD_PIPELINE_NAME",
+			"BUILD_PIPELINE_INSTANCE_VARS",
+			"BUILD_CREATED_BY",
+			"BUILD_TEAM_NAME",
+			"ATC_EXTERNAL_URL",
+			"BUILD_URL",
+			"BUILD_URL_SHORT":
+			return os.Getenv(e)
+		}
+		return "$" + e
+	})
 }
