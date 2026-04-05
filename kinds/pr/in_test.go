@@ -43,11 +43,8 @@ func TestInSucceedsWithMergeStrategy(t *testing.T) {
 	assert.Equal(1, client.InitRepoCallCount())
 	assert.Equal(1, client.FetchPrCallCount())
 	assert.Equal(1, client.PullBranchCallCount())
-	assert.Equal(1, client.CheckoutPrCallCount())
-	_, actualRef, _ := client.CheckoutPrArgsForCall(0)
-	assert.Equal(req.Version.Ref, actualRef)
 	assert.Equal(1, client.MergePrCallCount())
-	actualRef, _ = client.MergePrArgsForCall(0)
+	actualRef, _ := client.MergePrArgsForCall(0)
 	assert.Equal(req.Version.Ref, actualRef)
 	assert.Equal(0, client.RebasePrCallCount(), "should not be called")
 }
@@ -87,9 +84,6 @@ func TestInSucceedsWithRebaseStrategy(t *testing.T) {
 	assert.Equal(1, client.InitRepoCallCount())
 	assert.Equal(1, client.FetchPrCallCount())
 	assert.Equal(1, client.PullBranchCallCount())
-	assert.Equal(1, client.CheckoutPrCallCount())
-	_, actualRef, _ := client.CheckoutPrArgsForCall(0)
-	assert.Equal(req.Version.Ref, actualRef)
 	assert.Equal(1, client.RebasePrCallCount())
 	assert.Equal(0, client.MergePrCallCount(), "should not be called")
 }

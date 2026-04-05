@@ -99,11 +99,6 @@ func in(req inRequest, dest string, ghc gh.GithubClient) (gh.Metadata, error) {
 			return nil, fmt.Errorf("error pulling branch '%s': %w", pr.TargetBranch, err)
 		}
 
-		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
-		if err != nil {
-			return nil, fmt.Errorf("error checking out PR: %w", err)
-		}
-
 		err = ghc.MergePr(req.Version.Ref, req.Source.Submodules)
 		if err != nil {
 			return nil, fmt.Errorf("error locally merging PR: %w", err)
@@ -115,12 +110,7 @@ func in(req inRequest, dest string, ghc gh.GithubClient) (gh.Metadata, error) {
 			return nil, fmt.Errorf("error pulling branch '%s': %w", pr.TargetBranch, err)
 		}
 
-		err = ghc.CheckoutPr(pr.Branch, req.Version.Ref, req.Source.Submodules)
-		if err != nil {
-			return nil, fmt.Errorf("error checking out PR: %w", err)
-		}
-
-		err = ghc.RebasePr(pr.TargetBranch, pr.Branch, req.Source.Submodules)
+		err = ghc.RebasePr(pr.TargetBranch, req.Version.Ref, req.Source.Submodules)
 		if err != nil {
 			return nil, fmt.Errorf("error locally rebasing PR: %w", err)
 		}
