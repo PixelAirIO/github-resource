@@ -187,13 +187,13 @@ func (g *githubClient) AccessToken() string {
 
 type PullRequest struct {
 	Number        string   `json:"number"`
-	Url           string   `json:"url"`
+	Url           string   `json:"url,omitempty"`
 	IsDraft       bool     `json:"-"`
-	TargetBranch  string   `json:"target_branch"`
-	FilesChanged  []string `json:"changed_files"`
-	ParentRepoUrl string   `json:"parent_url"`
-	Branch        string   `json:"branch"`
-	Author        string   `json:"author"`
+	TargetBranch  string   `json:"target_branch,omitempty"`
+	FilesChanged  []string `json:"changed_files,omitempty"`
+	ParentRepoUrl string   `json:"parent_url,omitempty"`
+	Branch        string   `json:"branch,omitempty"`
+	Author        string   `json:"author,omitempty"`
 }
 
 func (g *githubClient) ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error) {
