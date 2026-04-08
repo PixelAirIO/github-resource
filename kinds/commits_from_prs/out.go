@@ -50,6 +50,10 @@ func (*CommitsFromPrs) Out(stdin []byte, src string) {
 		err = errors.Join(errors.New("params.pr cannot be blank"))
 	}
 
+	if request.Params.CommitDate == "" {
+		err = errors.Join(errors.New("params.commit_date cannot be blank"))
+	}
+
 	if request.Params.Name == "" {
 		err = errors.Join(errors.New("params.name cannot be blank"))
 	}
