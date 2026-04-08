@@ -380,6 +380,7 @@ jobs:
   plan:
     - do:
       - get: pr-commit
+        version: every
       - put: pr-commit
         no_get: true
         params:
