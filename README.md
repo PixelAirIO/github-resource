@@ -18,7 +18,7 @@ resources:
 - name: prs
   type: github
   source:
-    kind: prs # One of: prs, pr
+    kind: prs # One of: prs, pr, commits-from-prs
     access_token: gh_pat...
     repository: owner/repo
     # See below for config options, depending on which kind is selected
@@ -32,7 +32,8 @@ following sections explain each field's usage.
 The following `kind`'s are supported:
 
 * [`prs`](#kind-prs) - Returns a list of pull requests.
-* [`pr`](#kind-pr) - Work with a single Pull Request, changing check statuses or posting comments.
+* [`pr`](#kind-pr) - Work with a single Pull Request, updating check status.
+* [`commits-from-prs`](#kind-commits-from-prs) - Lists the latest commits from matching PRs, updating their check status.
 
 ## `access_token` - Configuring Authentication
 
@@ -205,8 +206,123 @@ comments.
     </tr>
 </table>
 
-The `get` checks out a commit from the Pull Request and locally merges them into
+The `get` checks out a commit from the Pull Request and locally merges it into
 the target branch (unless `merge_strategy: checkout` is used).
+
+The `put` step can set the status on a commit of the Pull Request. One instance
+of the resource can be used to set multiple statuses on the PR by calling `put`
+with different `params`.
+
+The `put` step has the following params:
+
+<table>
+    <tr>
+        <th>Field Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>
+            <code>ref</code><em>(Required)<em>
+        </td>
+        <td>The commit SHA that the PR check will be matched with on GitHub.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>name</code><em>(Required)<em>
+        </td>
+        <td>The name of the check that will be displayed in the list of PR
+        checks for the PR (e.g. `unit-tests`, `integration`). You can use <a
+        href="https://concourse-ci.org/docs/resource-types/implementing/#build-metadata">Build
+        Metadata</a> in the name like <code>$BUILD_JOB_NAME</code>.</td>
+    </tr>
+    <tr>
+        <td><code>status</code><em>(Required)<em></td>
+        <td>One of: `pending`, `success`, `error`, or `failure`</td>
+    </tr>
+    <tr>
+        <td><code>description</code><em>(Optional)<em></td>
+        <td>Description that will appear alongside the <code>name</code> of the PR check.</td>
+    </tr>
+</table>
+
+## `kind: commits-from-prs`
+
+Tracks the latest commits from all matching PR's in a given repository. Each
+version emitted represents one commit. This is a combination of the previous
+two `kind`s. It is useful when you don't want each PR getting its own pipeline.
+
+`source` has the following additional fields:
+<table>
+    <tr>
+        <th>Field Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>
+            <code>states</code><em>(Optional)<em>
+            <br>
+            Default Value: <code>["OPEN"]</code>
+        </td>
+        <td>A list of PR statuses to filter PR's by. Allowed values are: <code>OPEN</code>, <code>CLOSED</code>, <code>MERGED</code>.</td>
+    </tr>
+    <tr>
+        <td><code>labels</code><em>(Optional)<em></td>
+        <td>A list of label(s) to filter PR's by. A PR containing any of the labels will be matched.</td>
+    </tr>
+    <tr>
+        <td><code>target_branch</code><em>(Optional)<em></td>
+        <td>Only track PRs that merge into the specified branch.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>exclude_drafts</code><em>(Optional)<em>
+            <br>
+            Default Value: <code>false</code>
+        </td>
+        <td>Exclude PRs that are currently drafts.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>merge_strategy</code><em>(Optional)<em>
+            <br>
+            <em>Defaults to <code>merge</code></em>
+        </td>
+        <td>Dictates how the PR will be checked out. Can be one of:
+            <ul>
+                <li><code>merge</code> - Will checkout the branch the PR wants to merge into and locally merge the PR into that branch.</li>
+                <li><code>rebase</code> - Will checkout the branch the PR wants to merge into and locally rebase the PR on the latest commit of that branch.</li>
+                <li><code>checkout</code> - Only checks out the PR branch.</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <code>depth</code><em>(Optional)<em>
+        </td>
+        <td>Shallow clone the repository using git's <code>--depth</code> flag</td>
+    </tr>
+    <tr>
+        <td>
+            <code>submodules</code><em>(Optional)<em>
+        </td>
+        <td>Set to <code>true</code> if you want submodules to be cloned.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>fetch_tags</code><em>(Optional)<em>
+        </td>
+        <td>Set to <code>true</code> if you want tags to be fetched.</td>
+    </tr>
+    <tr>
+        <td>
+            <code>disable_git_lfs</code><em>(Optional)<em>
+        </td>
+        <td>Set to <code>true</code> to not download LFS files.</td>
+    </tr>
+</table>
+
+The `get` checks out the latest commit from a Pull Request and locally merges
+it into the target branch (unless `merge_strategy: checkout` is used).
 
 The `put` step can set the status on a commit of the Pull Request. One instance
 of the resource can be used to set multiple statuses on the PR by calling `put`
