@@ -102,6 +102,7 @@ func (*CommitsFromPrs) Out(stdin []byte, src string) {
 	var meta gh.Metadata
 	meta.Add("ref", request.Params.Ref)
 	meta.Add("pr", pr.Number)
+	meta.Add("commit_date", request.Params.CommitDate)
 	meta.Add("url", pr.Url)
 	meta.Add("target_branch", pr.TargetBranch)
 	meta.Add("pr_branch", pr.Branch)
