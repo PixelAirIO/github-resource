@@ -10,3 +10,5 @@ bindings:
     type: string
   GitObjectID:
     type: string
+  DateTime:
+    type: string

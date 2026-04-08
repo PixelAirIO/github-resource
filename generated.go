@@ -84,6 +84,30 @@ func (v *__latestCommitForPrInput) GetName() string { return v.Name }
 // GetNumber returns __latestCommitForPrInput.Number, and is useful for accessing the field via an interface.
 func (v *__latestCommitForPrInput) GetNumber() int { return v.Number }
 
+// __latestCommitsFromPrsInput is used internally by genqlient
+type __latestCommitsFromPrsInput struct {
+	Owner     string             `json:"owner"`
+	Name      string             `json:"name"`
+	States    []PullRequestState `json:"states"`
+	Labels    []string           `json:"labels"`
+	EndCursor string             `json:"endCursor"`
+}
+
+// GetOwner returns __latestCommitsFromPrsInput.Owner, and is useful for accessing the field via an interface.
+func (v *__latestCommitsFromPrsInput) GetOwner() string { return v.Owner }
+
+// GetName returns __latestCommitsFromPrsInput.Name, and is useful for accessing the field via an interface.
+func (v *__latestCommitsFromPrsInput) GetName() string { return v.Name }
+
+// GetStates returns __latestCommitsFromPrsInput.States, and is useful for accessing the field via an interface.
+func (v *__latestCommitsFromPrsInput) GetStates() []PullRequestState { return v.States }
+
+// GetLabels returns __latestCommitsFromPrsInput.Labels, and is useful for accessing the field via an interface.
+func (v *__latestCommitsFromPrsInput) GetLabels() []string { return v.Labels }
+
+// GetEndCursor returns __latestCommitsFromPrsInput.EndCursor, and is useful for accessing the field via an interface.
+func (v *__latestCommitsFromPrsInput) GetEndCursor() string { return v.EndCursor }
+
 // getPullRequestRepository includes the requested fields of the GraphQL type Repository.
 // The GraphQL type's documentation follows.
 //
@@ -970,6 +994,509 @@ type latestCommitForPrResponse struct {
 // GetRepository returns latestCommitForPrResponse.Repository, and is useful for accessing the field via an interface.
 func (v *latestCommitForPrResponse) GetRepository() latestCommitForPrRepository { return v.Repository }
 
+// latestCommitsFromPrsRepository includes the requested fields of the GraphQL type Repository.
+// The GraphQL type's documentation follows.
+//
+// A repository contains the content for a project.
+type latestCommitsFromPrsRepository struct {
+	// A list of pull requests that have been opened in the repository.
+	PullRequests latestCommitsFromPrsRepositoryPullRequestsPullRequestConnection `json:"pullRequests"`
+}
+
+// GetPullRequests returns latestCommitsFromPrsRepository.PullRequests, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepository) GetPullRequests() latestCommitsFromPrsRepositoryPullRequestsPullRequestConnection {
+	return v.PullRequests
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnection includes the requested fields of the GraphQL type PullRequestConnection.
+// The GraphQL type's documentation follows.
+//
+// The connection type for PullRequest.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnection struct {
+	// A list of nodes.
+	Nodes []latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest `json:"nodes"`
+	// Information to aid in pagination.
+	PageInfo latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionPageInfo `json:"pageInfo"`
+}
+
+// GetNodes returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnection) GetNodes() []latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest {
+	return v.Nodes
+}
+
+// GetPageInfo returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnection.PageInfo, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnection) GetPageInfo() latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionPageInfo {
+	return v.PageInfo
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest includes the requested fields of the GraphQL type PullRequest.
+// The GraphQL type's documentation follows.
+//
+// A repository pull request.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest struct {
+	// Identifies the pull request number.
+	Number int `json:"number"`
+	// Identifies if the pull request is a draft.
+	IsDraft bool `json:"isDraft"`
+	// Identifies the pull request title.
+	Title string `json:"title"`
+	// The permalink to the pull request.
+	Permalink string `json:"permalink"`
+	// Identifies the name of the base Ref associated with the pull request, even if the ref has been deleted.
+	BaseRefName string `json:"baseRefName"`
+	// Identifies the name of the head Ref associated with the pull request, even if the ref has been deleted.
+	HeadRefName string `json:"headRefName"`
+	// The HTTP URL for this pull request.
+	Url string `json:"url"`
+	// The actor who authored the comment.
+	Author latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor `json:"-"`
+	// A list of commits present in this pull request's head branch not present in the base branch.
+	Commits latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnection `json:"commits"`
+}
+
+// GetNumber returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Number, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetNumber() int {
+	return v.Number
+}
+
+// GetIsDraft returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.IsDraft, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetIsDraft() bool {
+	return v.IsDraft
+}
+
+// GetTitle returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Title, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetTitle() string {
+	return v.Title
+}
+
+// GetPermalink returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Permalink, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetPermalink() string {
+	return v.Permalink
+}
+
+// GetBaseRefName returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.BaseRefName, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetBaseRefName() string {
+	return v.BaseRefName
+}
+
+// GetHeadRefName returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.HeadRefName, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetHeadRefName() string {
+	return v.HeadRefName
+}
+
+// GetUrl returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Url, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetUrl() string {
+	return v.Url
+}
+
+// GetAuthor returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Author, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetAuthor() latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor {
+	return v.Author
+}
+
+// GetCommits returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Commits, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) GetCommits() latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnection {
+	return v.Commits
+}
+
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest
+		Author json.RawMessage `json:"author"`
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	{
+		dst := &v.Author
+		src := firstPass.Author
+		if len(src) != 0 && string(src) != "null" {
+			err = __unmarshallatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor(
+				src, dst)
+			if err != nil {
+				return fmt.Errorf(
+					"unable to unmarshal latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Author: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+type __premarshallatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest struct {
+	Number int `json:"number"`
+
+	IsDraft bool `json:"isDraft"`
+
+	Title string `json:"title"`
+
+	Permalink string `json:"permalink"`
+
+	BaseRefName string `json:"baseRefName"`
+
+	HeadRefName string `json:"headRefName"`
+
+	Url string `json:"url"`
+
+	Author json.RawMessage `json:"author"`
+
+	Commits latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnection `json:"commits"`
+}
+
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest) __premarshalJSON() (*__premarshallatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest, error) {
+	var retval __premarshallatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest
+
+	retval.Number = v.Number
+	retval.IsDraft = v.IsDraft
+	retval.Title = v.Title
+	retval.Permalink = v.Permalink
+	retval.BaseRefName = v.BaseRefName
+	retval.HeadRefName = v.HeadRefName
+	retval.Url = v.Url
+	{
+
+		dst := &retval.Author
+		src := v.Author
+		var err error
+		*dst, err = __marshallatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor(
+			&src)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"unable to marshal latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequest.Author: %w", err)
+		}
+	}
+	retval.Commits = v.Commits
+	return &retval, nil
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor includes the requested fields of the GraphQL interface Actor.
+//
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor is implemented by the following types:
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser
+// The GraphQL type's documentation follows.
+//
+// Represents an object which can take actions on GitHub. Typically a User or Bot.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor interface {
+	implementsGraphQLInterfacelatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor()
+	// GetTypename returns the receiver's concrete GraphQL type-name (see interface doc for possible values).
+	GetTypename() string
+	// GetLogin returns the interface-field "login" from its implementation.
+	// The GraphQL interface field's documentation follows.
+	//
+	// The username of the actor.
+	GetLogin() string
+}
+
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot) implementsGraphQLInterfacelatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount) implementsGraphQLInterfacelatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin) implementsGraphQLInterfacelatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization) implementsGraphQLInterfacelatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser) implementsGraphQLInterfacelatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor() {
+}
+
+func __unmarshallatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor(b []byte, v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor) error {
+	if string(b) == "null" {
+		return nil
+	}
+
+	var tn struct {
+		TypeName string `json:"__typename"`
+	}
+	err := json.Unmarshal(b, &tn)
+	if err != nil {
+		return err
+	}
+
+	switch tn.TypeName {
+	case "Bot":
+		*v = new(latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot)
+		return json.Unmarshal(b, *v)
+	case "EnterpriseUserAccount":
+		*v = new(latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount)
+		return json.Unmarshal(b, *v)
+	case "Mannequin":
+		*v = new(latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin)
+		return json.Unmarshal(b, *v)
+	case "Organization":
+		*v = new(latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization)
+		return json.Unmarshal(b, *v)
+	case "User":
+		*v = new(latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser)
+		return json.Unmarshal(b, *v)
+	case "":
+		return fmt.Errorf(
+			"response was missing Actor.__typename")
+	default:
+		return fmt.Errorf(
+			`unexpected concrete type for latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor: "%v"`, tn.TypeName)
+	}
+}
+
+func __marshallatestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor(v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor) ([]byte, error) {
+
+	var typename string
+	switch v := (*v).(type) {
+	case *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot:
+		typename = "Bot"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot
+		}{typename, v}
+		return json.Marshal(result)
+	case *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount:
+		typename = "EnterpriseUserAccount"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount
+		}{typename, v}
+		return json.Marshal(result)
+	case *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin:
+		typename = "Mannequin"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin
+		}{typename, v}
+		return json.Marshal(result)
+	case *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization:
+		typename = "Organization"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization
+		}{typename, v}
+		return json.Marshal(result)
+	case *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser:
+		typename = "User"
+
+		result := struct {
+			TypeName string `json:"__typename"`
+			*latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser
+		}{typename, v}
+		return json.Marshal(result)
+	case nil:
+		return []byte("null"), nil
+	default:
+		return nil, fmt.Errorf(
+			`unexpected concrete type for latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorActor: "%T"`, v)
+	}
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot includes the requested fields of the GraphQL type Bot.
+// The GraphQL type's documentation follows.
+//
+// A special type of user which takes actions on behalf of GitHub Apps.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot.Typename, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot.Login, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorBot) GetLogin() string {
+	return v.Login
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount includes the requested fields of the GraphQL type EnterpriseUserAccount.
+// The GraphQL type's documentation follows.
+//
+// An account for a user who is an admin of an enterprise or a member of an enterprise through one or more organizations.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount.Typename, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount.Login, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorEnterpriseUserAccount) GetLogin() string {
+	return v.Login
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin includes the requested fields of the GraphQL type Mannequin.
+// The GraphQL type's documentation follows.
+//
+// A placeholder user for attribution of imported data on GitHub.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin.Typename, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin.Login, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorMannequin) GetLogin() string {
+	return v.Login
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization includes the requested fields of the GraphQL type Organization.
+// The GraphQL type's documentation follows.
+//
+// An account on GitHub, with one or more owners, that has repositories, members and teams.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization.Typename, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization.Login, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorOrganization) GetLogin() string {
+	return v.Login
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser includes the requested fields of the GraphQL type User.
+// The GraphQL type's documentation follows.
+//
+// A user is an individual's account on GitHub that owns repositories and can make new content.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser struct {
+	Typename string `json:"__typename"`
+	// The username of the actor.
+	Login string `json:"login"`
+}
+
+// GetTypename returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser.Typename, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser) GetTypename() string {
+	return v.Typename
+}
+
+// GetLogin returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser.Login, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestAuthorUser) GetLogin() string {
+	return v.Login
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnection includes the requested fields of the GraphQL type PullRequestCommitConnection.
+// The GraphQL type's documentation follows.
+//
+// The connection type for PullRequestCommit.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnection struct {
+	// A list of nodes.
+	Nodes []latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit `json:"nodes"`
+}
+
+// GetNodes returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnection) GetNodes() []latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit {
+	return v.Nodes
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit includes the requested fields of the GraphQL type PullRequestCommit.
+// The GraphQL type's documentation follows.
+//
+// Represents a Git commit part of a pull request.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit struct {
+	// The Git commit object
+	Commit latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit `json:"commit"`
+}
+
+// GetCommit returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit.Commit, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommit) GetCommit() latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit {
+	return v.Commit
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit includes the requested fields of the GraphQL type Commit.
+// The GraphQL type's documentation follows.
+//
+// Represents a Git commit.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit struct {
+	// The Git object ID
+	Oid string `json:"oid"`
+	// The Git commit message headline
+	MessageHeadline string `json:"messageHeadline"`
+	// The datetime when this commit was committed.
+	CommittedDate string `json:"committedDate"`
+}
+
+// GetOid returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit.Oid, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit) GetOid() string {
+	return v.Oid
+}
+
+// GetMessageHeadline returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit.MessageHeadline, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit) GetMessageHeadline() string {
+	return v.MessageHeadline
+}
+
+// GetCommittedDate returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit.CommittedDate, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionNodesPullRequestCommitsPullRequestCommitConnectionNodesPullRequestCommitCommit) GetCommittedDate() string {
+	return v.CommittedDate
+}
+
+// latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionPageInfo includes the requested fields of the GraphQL type PageInfo.
+// The GraphQL type's documentation follows.
+//
+// Information about pagination in a connection.
+type latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionPageInfo struct {
+	// When paginating forwards, the cursor to continue.
+	EndCursor string `json:"endCursor"`
+	// When paginating forwards, are there more items?
+	HasNextPage bool `json:"hasNextPage"`
+}
+
+// GetEndCursor returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionPageInfo.EndCursor, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionPageInfo) GetEndCursor() string {
+	return v.EndCursor
+}
+
+// GetHasNextPage returns latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionPageInfo.HasNextPage, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsRepositoryPullRequestsPullRequestConnectionPageInfo) GetHasNextPage() bool {
+	return v.HasNextPage
+}
+
+// latestCommitsFromPrsResponse is returned by latestCommitsFromPrs on success.
+type latestCommitsFromPrsResponse struct {
+	// Lookup a given repository by the owner and repository name.
+	Repository latestCommitsFromPrsRepository `json:"repository"`
+}
+
+// GetRepository returns latestCommitsFromPrsResponse.Repository, and is useful for accessing the field via an interface.
+func (v *latestCommitsFromPrsResponse) GetRepository() latestCommitsFromPrsRepository {
+	return v.Repository
+}
+
 // The query executed by getPullRequest.
 const getPullRequest_Operation = `
 query getPullRequest ($owner: String!, $name: String!, $number: Int!) {
@@ -1117,6 +1644,75 @@ func latestCommitForPr(
 	}
 
 	data_ = &latestCommitForPrResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by latestCommitsFromPrs.
+const latestCommitsFromPrs_Operation = `
+query latestCommitsFromPrs ($owner: String!, $name: String!, $states: [PullRequestState!], $labels: [String!], $endCursor: String) {
+	repository(owner: $owner, name: $name) {
+		pullRequests(first: 100, after: $endCursor, states: $states, labels: $labels, orderBy: {field:UPDATED_AT,direction:ASC}) {
+			nodes {
+				number
+				isDraft
+				title
+				permalink
+				baseRefName
+				headRefName
+				url
+				author {
+					__typename
+					login
+				}
+				commits(last: 1) {
+					nodes {
+						commit {
+							oid
+							messageHeadline
+							committedDate
+						}
+					}
+				}
+			}
+			pageInfo {
+				endCursor
+				hasNextPage
+			}
+		}
+	}
+}
+`
+
+func latestCommitsFromPrs(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	owner string,
+	name string,
+	states []PullRequestState,
+	labels []string,
+	endCursor string,
+) (data_ *latestCommitsFromPrsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "latestCommitsFromPrs",
+		Query:  latestCommitsFromPrs_Operation,
+		Variables: &__latestCommitsFromPrsInput{
+			Owner:     owner,
+			Name:      name,
+			States:    states,
+			Labels:    labels,
+			EndCursor: endCursor,
+		},
+	}
+
+	data_ = &latestCommitsFromPrsResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

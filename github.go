@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -50,6 +51,9 @@ type GithubClient interface {
 	// Returns information about the Pull Request. Only the first 100 files are
 	// listed.
 	GetPRInfo(int) (PullRequest, error)
+
+	// Returns the latest commits for matching PRs
+	LatestCommitsFromPrs(states []PullRequestState, labels []string) ([]PRCommit, error)
 
 	// Updates the status for a given ref
 	UpdatePRStatus(ref, name, status, descr string) error
@@ -340,6 +344,96 @@ query getPullRequest(
 		Branch:        resp.Repository.PullRequest.HeadRefName,
 		Author:        resp.Repository.PullRequest.Author.GetLogin(),
 	}, nil
+}
+
+type PRCommit struct {
+	PullRequest
+	Ref      string `json:"ref"`
+	Date     string `json:"date"`
+	Headline string `json:"headline"`
+}
+
+func (g *githubClient) LatestCommitsFromPrs(states []PullRequestState, labels []string) ([]PRCommit, error) {
+	_ = `# @genqlient
+query latestCommitsFromPrs(
+    $owner: String!
+    $name: String!
+    $states: [PullRequestState!]
+    $labels: [String!]
+    $endCursor: String
+) {
+    repository(owner: $owner, name: $name) {
+        pullRequests(
+	        first: 100,
+			after: $endCursor,
+			states: $states,
+			labels: $labels,
+			orderBy: {field: UPDATED_AT, direction: ASC}
+		) {
+            nodes {
+                number
+                isDraft
+                title
+                permalink
+                baseRefName
+                headRefName
+                url
+                author {
+                    login
+                }
+                commits(last: 1) {
+                  nodes {
+                    commit {
+                      oid
+                      messageHeadline
+                      committedDate
+                    }
+                  }
+                }
+            }
+            pageInfo {
+	            endCursor
+                hasNextPage
+            }
+        }
+    }
+}`
+	prs := []PRCommit{}
+	ctx := context.Background()
+	hasNextPage := true
+	endCursor := ""
+
+	for hasNextPage {
+		resp, err := latestCommitsFromPrs(ctx, g.gqlClient, g.owner, g.repo, states, labels, endCursor)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, v := range resp.Repository.PullRequests.Nodes {
+			if len(v.Commits.Nodes) > 0 {
+				prs = append(prs, PRCommit{
+					PullRequest: PullRequest{
+						Number:       strconv.Itoa(v.Number),
+						Url:          v.Permalink,
+						IsDraft:      v.IsDraft,
+						TargetBranch: v.BaseRefName,
+						Branch:       v.HeadRefName,
+						Author:       v.Author.GetLogin(),
+					},
+					Ref:      v.Commits.Nodes[0].Commit.Oid,
+					Date:     v.Commits.Nodes[0].Commit.CommittedDate,
+					Headline: v.Commits.Nodes[0].Commit.MessageHeadline,
+				})
+			} else {
+				log.Printf("PR '%d' has no commits\n", v.Number)
+			}
+		}
+
+		hasNextPage = resp.Repository.PullRequests.PageInfo.HasNextPage
+		endCursor = resp.Repository.PullRequests.PageInfo.EndCursor
+	}
+
+	return prs, nil
 }
 
 func (g *githubClient) UpdatePRStatus(ref, name, status, descr string) error {
