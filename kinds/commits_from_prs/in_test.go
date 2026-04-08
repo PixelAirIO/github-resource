@@ -40,7 +40,7 @@ func TestInCallsGetPRInfo(t *testing.T) {
 	assert.Equal(1, client.GetPRInfoCallCount())
 	assert.Equal(42, client.GetPRInfoArgsForCall(0))
 
-	assert.Len(meta, 6)
+	assert.Len(meta, 7)
 }
 
 func TestInInvalidPrNumber(t *testing.T) {

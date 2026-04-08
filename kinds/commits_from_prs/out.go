@@ -21,6 +21,7 @@ type outRequest struct {
 type outParams struct {
 	Ref         string `json:"ref"`
 	Pr          string `json:"pr"`
+	CommitDate  string `json:"commit_date"`
 	Name        string `json:"name"`
 	Status      string `json:"status"`
 	Description string `json:"description"`
@@ -104,7 +105,9 @@ func (*CommitsFromPrs) Out(stdin []byte, src string) {
 
 	resp := outResponse{
 		Version: version{
-			Ref: request.Params.Ref,
+			Ref:        request.Params.Ref,
+			Pr:         request.Params.Pr,
+			CommitDate: request.Params.CommitDate,
 		},
 		Metadata: meta,
 	}

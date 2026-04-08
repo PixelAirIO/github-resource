@@ -81,7 +81,8 @@ func in(req inRequest, dest string, ghc gh.GithubClient) (gh.Metadata, error) {
 
 	var meta gh.Metadata
 	meta.Add("ref", req.Version.Ref)
-	meta.Add("pr", pr.Number)
+	meta.Add("pr", req.Version.Pr)
+	meta.Add("commit_date", req.Version.CommitDate)
 	meta.Add("url", pr.Url)
 	meta.Add("target_branch", pr.TargetBranch)
 	meta.Add("pr_branch", pr.Branch)

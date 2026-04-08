@@ -237,7 +237,7 @@ The `put` step has the following params:
     </tr>
     <tr>
         <td><code>status</code><em>(Required)<em></td>
-        <td>One of: `pending`, `success`, `error`, or `failure`</td>
+        <td>One of: <code>pending</code>, <code>success</code>, <code>error</code>, or <code>failure</code></td>
     </tr>
     <tr>
         <td><code>description</code><em>(Optional)<em></td>
@@ -349,6 +349,12 @@ The `put` step has the following params:
     </tr>
     <tr>
         <td>
+            <code>commit_date</code><em>(Required)<em>
+        </td>
+        <td>The commit date, returned by the previously run <code>get</code> step.</td>
+    </tr>
+    <tr>
+        <td>
             <code>name</code><em>(Required)<em>
         </td>
         <td>The name of the check that will be displayed in the list of PR
@@ -358,10 +364,47 @@ The `put` step has the following params:
     </tr>
     <tr>
         <td><code>status</code><em>(Required)<em></td>
-        <td>One of: `pending`, `success`, `error`, or `failure`</td>
+        <td>One of: <code>pending</code>, <code>success</code>, <code>error</code>, or <code>failure</code></td>
     </tr>
     <tr>
         <td><code>description</code><em>(Optional)<em></td>
         <td>Description that will appear alongside the <code>name</code> of the PR check.</td>
     </tr>
 </table>
+
+Typical usage would look like this in your job:
+
+```yaml
+jobs:
+- name: test
+  plan:
+    - do:
+      - get: pr-commit
+      - put: pr-commit
+        no_get: true
+        params:
+          ref: ((.:pr-commit.ref))
+          pr: ((.:pr-commit.pr))
+          commit_date: ((.:pr-commit.commit_date))
+          name: tests
+          status: pending
+    - # other steps happen here
+  on_failure:
+    put: pr-commit
+    no_get: true
+    params:
+      ref: ((.:pr-commit.ref))
+      pr: ((.:pr-commit.pr))
+      commit_date: ((.:pr-commit.commit_date))
+      name: tests
+      status: failure
+  on_success:
+    put: pr-commit
+    no_get: true
+    params:
+      ref: ((.:pr-commit.ref))
+      pr: ((.:pr-commit.pr))
+      commit_date: ((.:pr-commit.commit_date))
+      name: tests
+      status: success
+```
