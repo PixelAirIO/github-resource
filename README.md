@@ -343,6 +343,12 @@ The `put` step has the following params:
     </tr>
     <tr>
         <td>
+            <code>pr</code><em>(Required)<em>
+        </td>
+        <td>The PR number that the PR check will be matched with on GitHub.</td>
+    </tr>
+    <tr>
+        <td>
             <code>name</code><em>(Required)<em>
         </td>
         <td>The name of the check that will be displayed in the list of PR
