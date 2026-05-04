@@ -122,5 +122,6 @@ func (*CommitsFromPrs) Out(stdin []byte, src string) {
 		log.Fatalf("error marshaling version: %v", err)
 	}
 
+	log.Printf("PR check status '%s' updated to %s", name, request.Params.Status)
 	fmt.Println(string(ver))
 }

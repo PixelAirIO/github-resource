@@ -10,6 +10,7 @@ import (
 
 func init() {
 	log.SetFlags(0)
+	log.SetOutput(os.Stderr)
 }
 
 func main() {
