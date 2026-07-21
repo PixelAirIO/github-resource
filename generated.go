@@ -134,6 +134,8 @@ func (v *getPullRequestRepository) GetPullRequest() getPullRequestRepositoryPull
 type getPullRequestRepositoryPullRequest struct {
 	// Identifies the pull request number.
 	Number int `json:"number"`
+	// Identifies the pull request title.
+	Title string `json:"title"`
 	// Identifies if the pull request is a draft.
 	IsDraft bool `json:"isDraft"`
 	// The permalink to the pull request.
@@ -150,6 +152,9 @@ type getPullRequestRepositoryPullRequest struct {
 
 // GetNumber returns getPullRequestRepositoryPullRequest.Number, and is useful for accessing the field via an interface.
 func (v *getPullRequestRepositoryPullRequest) GetNumber() int { return v.Number }
+
+// GetTitle returns getPullRequestRepositoryPullRequest.Title, and is useful for accessing the field via an interface.
+func (v *getPullRequestRepositoryPullRequest) GetTitle() string { return v.Title }
 
 // GetIsDraft returns getPullRequestRepositoryPullRequest.IsDraft, and is useful for accessing the field via an interface.
 func (v *getPullRequestRepositoryPullRequest) GetIsDraft() bool { return v.IsDraft }
@@ -209,6 +214,8 @@ func (v *getPullRequestRepositoryPullRequest) UnmarshalJSON(b []byte) error {
 type __premarshalgetPullRequestRepositoryPullRequest struct {
 	Number int `json:"number"`
 
+	Title string `json:"title"`
+
 	IsDraft bool `json:"isDraft"`
 
 	Permalink string `json:"permalink"`
@@ -234,6 +241,7 @@ func (v *getPullRequestRepositoryPullRequest) __premarshalJSON() (*__premarshalg
 	var retval __premarshalgetPullRequestRepositoryPullRequest
 
 	retval.Number = v.Number
+	retval.Title = v.Title
 	retval.IsDraft = v.IsDraft
 	retval.Permalink = v.Permalink
 	retval.BaseRefName = v.BaseRefName
@@ -1504,6 +1512,7 @@ query getPullRequest ($owner: String!, $name: String!, $number: Int!) {
 		url
 		pullRequest(number: $number) {
 			number
+			title
 			isDraft
 			permalink
 			baseRefName
