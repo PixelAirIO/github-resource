@@ -76,6 +76,7 @@ func in(req inRequest, dest string, ghc gh.GithubClient) (gh.Metadata, error) {
 	meta.Add("target_branch", pr.TargetBranch)
 	meta.Add("pr_branch", pr.Branch)
 	meta.Add("author", pr.Author)
+	meta.Add("title", pr.Title)
 
 	err = os.Chdir(dest)
 	if err != nil {

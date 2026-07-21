@@ -33,12 +33,13 @@ func TestInSucceedsWithMergeStrategy(t *testing.T) {
 		TargetBranch: "main",
 		Author:       "some-author",
 		Branch:       "pr-branch",
+		Title:        "My PR title",
 	}, nil)
 
 	meta, err := in(req, dest, client)
 	assert.NoError(err)
 	assert.NotNil(meta)
-	assert.Len(meta, 6)
+	assert.Len(meta, 7)
 	assert.Equal(1, client.GetPRInfoCallCount())
 	assert.Equal(1, client.InitRepoCallCount())
 	assert.Equal(1, client.FetchPrCallCount())
@@ -74,12 +75,13 @@ func TestInSucceedsWithRebaseStrategy(t *testing.T) {
 		TargetBranch: "main",
 		Author:       "some-author",
 		Branch:       "pr-branch",
+		Title:        "My PR title",
 	}, nil)
 
 	meta, err := in(req, dest, client)
 	assert.NoError(err)
 	assert.NotNil(meta)
-	assert.Len(meta, 6)
+	assert.Len(meta, 7)
 	assert.Equal(1, client.GetPRInfoCallCount())
 	assert.Equal(1, client.InitRepoCallCount())
 	assert.Equal(1, client.FetchPrCallCount())
@@ -113,12 +115,13 @@ func TestInSucceedsWithCheckoutStrategy(t *testing.T) {
 		TargetBranch: "main",
 		Author:       "some-author",
 		Branch:       "pr-branch",
+		Title:        "My PR title",
 	}, nil)
 
 	meta, err := in(req, dest, client)
 	assert.NoError(err)
 	assert.NotNil(meta)
-	assert.Len(meta, 6)
+	assert.Len(meta, 7)
 	assert.Equal(1, client.GetPRInfoCallCount())
 	assert.Equal(1, client.InitRepoCallCount())
 	assert.Equal(1, client.FetchPrCallCount())

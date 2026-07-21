@@ -198,6 +198,7 @@ type PullRequest struct {
 	ParentRepoUrl string   `json:"parent_url,omitempty"`
 	Branch        string   `json:"branch,omitempty"`
 	Author        string   `json:"author,omitempty"`
+	Title         string   `json:"title,omitempty"`
 }
 
 func (g *githubClient) ListPullRequests(states []PullRequestState, labels []string) ([]PullRequest, error) {
@@ -307,6 +308,7 @@ query getPullRequest(
         url
         pullRequest(number: $number) {
             number
+            title
             isDraft
             permalink
             baseRefName
@@ -343,6 +345,7 @@ query getPullRequest(
 		ParentRepoUrl: resp.Repository.Url,
 		Branch:        resp.Repository.PullRequest.HeadRefName,
 		Author:        resp.Repository.PullRequest.Author.GetLogin(),
+		Title:         resp.Repository.PullRequest.Title,
 	}, nil
 }
 
