@@ -55,20 +55,6 @@ func check(request checkRequest, ghc gh.GithubClient) []version {
 		log.Fatalf("failed to get pull requests: %v", err)
 	}
 
-	if len(prs) == 0 {
-		log.Println("No matching PRs found.")
-		if request.Version.Prs == "none" {
-			return []version{}
-		}
-
-		return []version{
-			{
-				Prs:       "none",
-				Timestamp: time.Now(),
-			},
-		}
-	}
-
 	if request.Source.Config.ExcludeDrafts {
 		nonDraftPrs := []gh.PullRequest{}
 		for _, p := range prs {
@@ -87,6 +73,20 @@ func check(request checkRequest, ghc gh.GithubClient) []version {
 			}
 		}
 		prs = matchingPrs
+	}
+
+	if len(prs) == 0 {
+		log.Println("No matching PRs found.")
+		if request.Version.Prs == "none" {
+			return []version{}
+		}
+
+		return []version{
+			{
+				Prs:       "none",
+				Timestamp: time.Now(),
+			},
+		}
 	}
 
 	prsVersion := ""

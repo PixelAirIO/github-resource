@@ -165,6 +165,30 @@ func TestNoMatchingPRsReturnsNoneAsTheVersion(t *testing.T) {
 	assert.Equal("none", versions[0].Prs, "version should be set to the string 'none'")
 }
 
+func TestNoMatchingPRsReturnsNoneAsTheVersionWhenNoPRsMatchTargetBranch(t *testing.T) {
+	assert := require.New(t)
+	req := checkRequest{
+		Source: Source{
+			Config: Config{
+				Config: gh.Config{
+					Repository: "owner/repo",
+				},
+				TargetBranch: "other",
+			},
+		},
+	}
+
+	client := &ghf.FakeGithubClient{}
+	client.ListPullRequestsReturns([]gh.PullRequest{
+		{Number: "1", TargetBranch: "main"},
+		{Number: "88", TargetBranch: "main"},
+	}, nil)
+
+	versions := check(req, client)
+	assert.Len(versions, 1)
+	assert.Equal("none", versions[0].Prs, "version should be set to the string 'none'")
+}
+
 func TestNoMatchingPRsReturnsEmptyListWhenPriorVersionIsNone(t *testing.T) {
 	assert := require.New(t)
 	req := checkRequest{
