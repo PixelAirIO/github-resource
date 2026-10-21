@@ -24,8 +24,9 @@ resources:
     # See below for config options, depending on which kind is selected
 ```
 
-The `kind`, `access_token`, `repository` fields are always required. The
-following sections explain each field's usage.
+The `kind`, `repository` fields are always required. The resource can
+authenticate using an access token or a GitHub App. The following sections
+explain each field's usage.
 
 ## `kind` - Picking the Resource to Track
 
@@ -35,10 +36,23 @@ The following `kind`'s are supported:
 * [`pr`](#kind-pr) - Work with a single Pull Request, updating check status.
 * [`commits-from-prs`](#kind-commits-from-prs) - Lists the latest commits from matching PRs, updating their check status.
 
-## `access_token` - Configuring Authentication
+## `repository`
+
+This is the repository to target in the format of `OWNER/REPO`. For example, the
+repository `https://github.com/example/my-app` would become `repository:
+example/my-app`.
+
+## Configuring Authentication
 
 Authentication is optional if you're accessing public repositories, but you'll
-likely want to configure it to avoid rate-limits. Create a [Personal Access
+likely want to configure it to avoid rate-limits.
+
+There are two methods of authentication: Setting `access_token` or using a
+GitHub App Installation.
+
+### Access Token - `access_token`
+
+Create a [Personal Access
 token](https://github.com/settings/personal-access-tokens) (classic or
 fine-grained work).
 
@@ -46,12 +60,21 @@ You can also configure the the resource to use a token from a GitHub or OAuth
 app. See the GitHub docs for details:
 https://docs.github.com/en/graphql/guides/forming-calls-with-graphql#authenticating-with-graphql
 
-## `repository`
+### GitHub App Installation - `app_*`
 
-This is the repository to target in the format of `OWNER/REPO`. For example, the
-repository `https://github.com/example/my-app` would become `repository:
-example/my-app`.
+This requires creating and installing a [GitHub
+App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps)
+into your GitHub organization.
 
+Make note of the following information when creating your App:
+- Client ID
+- Private Key - Automatically made when generating Key Pair for the app
+- Install ID - In the URL of the settings page of the app (e.g. `https://github.com/settings/installations/INSTALL_ID`)
+
+Provide the above information to the resource using the following fields:
+- `app_client_id`
+- `app_private_key`
+- `app_install_id`
 
 ## Custom Endpoints
 

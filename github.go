@@ -4,7 +4,15 @@ package githubresource
 
 import (
 	"context"
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/tls"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"log"
@@ -14,6 +22,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/google/go-github/v84/github"
@@ -23,6 +32,9 @@ import (
 
 type Config struct {
 	AccessToken         string `json:"access_token"`
+	AppClientID         string `json:"app_client_id"`
+	AppPrivateKey       string `json:"app_private_key"`
+	AppInstallID        string `json:"app_install_id"`
 	GraphqlEndpoint     string `json:"graphql_endpoint"`
 	RestEndpoint        string `json:"rest_endpoint"`
 	HostEndpoint        string `json:"host_endpoint"`
@@ -142,6 +154,12 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		transport = http.DefaultTransport
 	}
 
+	accessToken, err := getAccessToken(cfg)
+	if err != nil {
+		return nil, err
+	}
+	cfg.AccessToken = accessToken
+
 	gqlClient := graphql.NewClient(cfg.GraphqlEndpoint, &http.Client{
 		Transport: &authedTransport{
 			accessToken: cfg.AccessToken,
@@ -175,6 +193,110 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 			"GIT_TERMINAL_PROMPT=0",
 		},
 	}, nil
+}
+
+func getAccessToken(cfg Config) (string, error) {
+	if cfg.AccessToken == "" &&
+		(cfg.AppClientID == "" && cfg.AppPrivateKey == "" && cfg.AppInstallID == "") {
+		return "", nil
+	}
+
+	if cfg.AccessToken != "" &&
+		(cfg.AppClientID != "" || cfg.AppPrivateKey != "" || cfg.AppInstallID != "") {
+		return "", errors.New("both access_token and app_* settings are provided. Only one auth method can be used. Please fix the resource's source configuration.")
+	}
+
+	if cfg.AccessToken != "" {
+		return cfg.AccessToken, nil
+	}
+
+	var missing []string
+	for _, field := range []struct{ name, value string }{
+		{"app_client_id", cfg.AppClientID},
+		{"app_private_key", cfg.AppPrivateKey},
+		{"app_install_id", cfg.AppInstallID},
+	} {
+		if field.value == "" {
+			missing = append(missing, field.name)
+		}
+	}
+	if len(missing) > 0 {
+		return "", fmt.Errorf("missing required GitHub App settings: %s", strings.Join(missing, ", "))
+	}
+
+	installationID, err := strconv.ParseInt(cfg.AppInstallID, 10, 64)
+	if err != nil || installationID <= 0 {
+		return "", errors.New("app_install_id must be a positive integer")
+	}
+
+	block, _ := pem.Decode([]byte(cfg.AppPrivateKey))
+	if block == nil {
+		return "", errors.New("app_private_key must contain a PEM-encoded RSA private key")
+	}
+
+	var key *rsa.PrivateKey
+	switch block.Type {
+	case "RSA PRIVATE KEY":
+		key, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+
+	case "PRIVATE KEY":
+		var parsed any
+		parsed, err = x509.ParsePKCS8PrivateKey(block.Bytes)
+		if err == nil {
+			var ok bool
+			key, ok = parsed.(*rsa.PrivateKey)
+			if !ok {
+				return "", errors.New("app_private_key must be an RSA private key")
+			}
+		}
+
+	default:
+		return "", errors.New("app_private_key must contain a PKCS#1 or PKCS#8 RSA private key")
+	}
+	if err != nil {
+		return "", fmt.Errorf("parsing app_private_key: %w", err)
+	}
+
+	// GitHub recommends backdating iat by a minute to allow for clock drift.
+	now := time.Now()
+	claims, err := json.Marshal(struct {
+		Issuer    string `json:"iss"`
+		IssuedAt  int64  `json:"iat"`
+		ExpiresAt int64  `json:"exp"`
+	}{cfg.AppClientID, now.Add(-time.Minute).Unix(), now.Add(10 * time.Minute).Unix()})
+	if err != nil {
+		return "", fmt.Errorf("encoding GitHub App JWT: %w", err)
+	}
+	unsigned := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"RS256","typ":"JWT"}`)) + "." + base64.RawURLEncoding.EncodeToString(claims)
+	digest := sha256.Sum256([]byte(unsigned))
+	signature, err := rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA256, digest[:])
+	if err != nil {
+		return "", fmt.Errorf("signing GitHub App JWT: %w", err)
+	}
+	jwt := unsigned + "." + base64.RawURLEncoding.EncodeToString(signature)
+
+	httpClient := http.DefaultClient
+	if cfg.SkipSSLVerification {
+		httpClient = &http.Client{Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}}
+	}
+	client := github.NewClient(httpClient).WithAuthToken(jwt)
+	if cfg.RestEndpoint != "" {
+		client.BaseURL, err = url.Parse(cfg.RestEndpoint)
+		if err != nil {
+			return "", fmt.Errorf("parsing rest_endpoint: %w", err)
+		}
+	}
+	// Repository APIs, GraphQL, and Git need an installation token, not the app JWT.
+	token, _, err := client.Apps.CreateInstallationToken(context.Background(), installationID, nil)
+	if err != nil {
+		return "", fmt.Errorf("creating GitHub App installation token: %w", err)
+	}
+	if token.GetToken() == "" {
+		return "", errors.New("GitHub App installation token response contained an empty token")
+	}
+	return token.GetToken(), nil
 }
 
 func (g *githubClient) APIEndpoints() (string, string) {
