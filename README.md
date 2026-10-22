@@ -1,6 +1,6 @@
 # GitHub Resource
 
-![Build Status](https://ci.pixelair.io/api/v1/teams/main/pipelines/paio-resources-types/jobs/build/badge?vars.resource_name="github"&title="Build%20Status")
+![Build Status](https://ci.pixelair.io/api/v1/teams/main/pipelines/paio-resources-types/jobs/build/badge?vars.resource_name="github"&title=Build%20Status)
 
 A [Concourse](https://concourse-ci.org/) resource for working with GitHub. This
 resource can be configured to track and update different resources within
