@@ -129,7 +129,7 @@ func TestGetAccessTokenValidation(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			token, err := getAccessToken(tt.cfg)
+			token, err := getAccessToken(tt.cfg, http.DefaultClient)
 			require.Equal(t, tt.token, token)
 			if tt.message == "" {
 				require.NoError(t, err)
@@ -142,7 +142,11 @@ func TestGetAccessTokenValidation(t *testing.T) {
 	require.NoError(t, err)
 	der, err := x509.MarshalPKCS8PrivateKey(ecKey)
 	require.NoError(t, err)
-	_, err = getAccessToken(Config{AppClientID: "client", AppInstallID: "1", AppPrivateKey: string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der}))})
+	_, err = getAccessToken(Config{
+		AppClientID:   "client",
+		AppInstallID:  "1",
+		AppPrivateKey: string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der})),
+	}, http.DefaultClient)
 	require.ErrorContains(t, err, "must be an RSA private key")
 }
 
@@ -233,13 +237,13 @@ func TestGitHubAppTokenExchangeErrors(t *testing.T) {
 			}))
 			defer server.Close()
 			cfg.RestEndpoint = server.URL + "/"
-			token, err := getAccessToken(cfg)
+			token, err := getAccessToken(cfg, http.DefaultClient)
 			require.Empty(t, token)
 			require.ErrorContains(t, err, tt.message)
 		})
 	}
 	cfg.RestEndpoint = ":invalid"
-	_, err = getAccessToken(cfg)
+	_, err = getAccessToken(cfg, http.DefaultClient)
 	require.ErrorContains(t, err, "parsing rest_endpoint")
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -247,14 +251,10 @@ func TestGitHubAppTokenExchangeErrors(t *testing.T) {
 	}))
 	defer server.Close()
 	cfg.RestEndpoint = server.URL + "/"
-	_, err = getAccessToken(cfg)
+	_, err = getAccessToken(cfg, http.DefaultClient)
 	require.Error(t, err)
-	cfg.SkipSSLVerification = true
-	token, err := getAccessToken(cfg)
-	require.NoError(t, err)
-	require.Equal(t, "tls-token", token)
 	server.Close()
-	_, err = getAccessToken(cfg)
+	_, err = getAccessToken(cfg, http.DefaultClient)
 	require.ErrorContains(t, err, "creating GitHub App installation token")
 }
 

@@ -154,7 +154,7 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 		transport = http.DefaultTransport
 	}
 
-	accessToken, err := getAccessToken(cfg)
+	accessToken, err := getAccessToken(cfg, httpClient)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +195,7 @@ func NewGithubClient(cfg Config) (GithubClient, error) {
 	}, nil
 }
 
-func getAccessToken(cfg Config) (string, error) {
+func getAccessToken(cfg Config, httpClient *http.Client) (string, error) {
 	if cfg.AccessToken == "" &&
 		(cfg.AppClientID == "" && cfg.AppPrivateKey == "" && cfg.AppInstallID == "") {
 		return "", nil
@@ -275,12 +275,6 @@ func getAccessToken(cfg Config) (string, error) {
 	}
 	jwt := unsigned + "." + base64.RawURLEncoding.EncodeToString(signature)
 
-	httpClient := http.DefaultClient
-	if cfg.SkipSSLVerification {
-		httpClient = &http.Client{Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}}
-	}
 	client := github.NewClient(httpClient).WithAuthToken(jwt)
 	if cfg.RestEndpoint != "" {
 		client.BaseURL, err = url.Parse(cfg.RestEndpoint)
