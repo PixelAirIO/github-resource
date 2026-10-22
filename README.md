@@ -1,5 +1,7 @@
 # GitHub Resource
 
+![Build Status](https://ci.pixelair.io/api/v1/teams/main/pipelines/paio-resources-types/jobs/build/badge?vars.resource_name="github"&title=Build Status)
+
 A [Concourse](https://concourse-ci.org/) resource for working with GitHub. This
 resource can be configured to track and update different resources within
 GitHub. It's multiple Concourse resources bundled into one container image.
